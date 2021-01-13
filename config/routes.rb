@@ -5,5 +5,5 @@ ForemanPluginTemplate::Engine.routes.draw do
 end
 
 Foreman::Application.routes.draw do
-  mount ForemanPluginTemplate::Engine, at: '/foreman_plugin_template'
+  mount ForemanPluginTemplate::Engine, at: '/foreman_host_reports'
 end

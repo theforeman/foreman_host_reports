@@ -1,2 +1,2 @@
-# Matches foreman_plugin_template.gemspec
+# Matches foreman_host_reports.gemspec
 _('TODO: Description of ForemanPluginTemplate.')
