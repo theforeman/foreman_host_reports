@@ -468,6 +468,10 @@ Example keywords:
 
 Fork and send a Pull Request. Thanks!
 
+## License
+
+GNU GPLv3, see LICENSE file for more information.
+
 ## Copyright
 
 Copyright (c) 2021 Red Hat, Inc.
