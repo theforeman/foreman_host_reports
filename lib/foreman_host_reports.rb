@@ -1,4 +1,4 @@
-require 'foreman_host_reports/engine'
+require 'fhr/engine'
 
-module ForemanPluginTemplate
+module Fhr
 end
