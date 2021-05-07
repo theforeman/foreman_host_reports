@@ -13,9 +13,17 @@ More instructions later.
 
 ## Motivation
 
-The motivation was poor performance of the Foreman core reporting implementation. If reports are processed and stored efficiently, import process can be 20x (times) faster with less storage requirements. To achieve that, minimum processing is performed during the import phase, report is stored as-is in a database blob (text) field and only parsed when report show page is opened.
+The motivation was poor performance of the Foreman core reporting
+implementation. If reports are processed and stored efficiently, import process
+can be 20x (times) faster with less storage requirements. To achieve that,
+processing is offloaded to smart proxy and reports are stripped down to minimum
+relevant information during the import phase, report is stored as-is
+in a database blob (text) field and only parsed when report show page is
+opened.
 
-For more info and discussion about the implementation, read [a thread on discourse](https://community.theforeman.org/t/rfc-optimized-reports-storage/15573). The design is roughly the following:
+For more info and discussion about the implementation, read [a thread on
+discourse](https://community.theforeman.org/t/rfc-optimized-reports-storage/15573).
+The design is roughly the following:
 
 * Instead of modyfing current core report functionality which is customized by various plugins, new plugin is created.
 * New model class is created: `HostReport`, the reason for that is that this will be better upgrade experience, new tables can be migrated, data can be transformed and legacy tables `Report` and `ConfigReport` can be dropped afterwards. API will be completely different anyway, plugins will no longer handle directly with the model anymore.
@@ -56,34 +64,61 @@ For more info and discussion about the implementation, read [a thread on discour
 
 There are several report types implemented by this plugin.
 
-The API REST endpoint expects the format to be also passed via HTTP argument so no input parsing is actually needed to detect format.
+The API REST endpoint expects the format to be also passed via HTTP argument so
+no input parsing is actually needed to detect format.
 
 ### Plain
 
-The most simple format, whole contents of HTTP payload is stored in body database field without any processing. When such format is displayed, it is presented as plain/text without any transformations or formatting.
+The most simple format, whole contents of HTTP payload is stored in body
+database field without any processing. When such format is displayed, it is
+presented as plain/text without any transformations or formatting.
+
+For backward compatibility, plugin will override the core reports API and store
+incoming reports as plaintext so nothing gets lost, reports will be still visible
+(but formatting will be human-unreadable) so users can take actions to reconfigure
+reporting via the new import API.
 
 ### Standard
 
-Standard format that is optimized for fast processing and effective storage. Format, host and reported_at fields are all mandatory.
+Standard format that is optimized for fast processing and effective storage.
+Format, host and reported_at fields are all mandatory.
 
-Optional field id should be set to unique number or string that represetnts the report. Optional proxy field represents FQDN of foreman proxy which processed the report.
+Optional field id should be set to unique number or string that represetnts the
+report. Optional proxy field represents FQDN of foreman proxy which processed
+the report.
 
-Optional status field represent counts of levels for the report, this is stored in 64 bit array. Standard report recognizes the following levels: debug, normal, warning and error. If count exceeds the limit if unsigned 16 bits per number, report returns "65536+" for this status.
+Optional status field represent counts of levels for the report, this is stored
+in 64 bit array. Standard report recognizes the following levels: debug,
+normal, warning and error. If count exceeds the limit if unsigned 16 bits per
+number, report returns "65536+" for this status.
 
-Optional field errors may contain an array of strings with errors from initial processing and transformation.
+Optional field errors may contain an array of strings with errors from initial
+processing and transformation.
 
-Field named all_lines is a simple string to minimize memory allocations, usually a multi-line string. The standard implementation does not perform any formatting or transformations, when implementing a new formatter it is recommended to keep all_lines field as a multi-line string and prefix lines with additional info like level or timestamp:
+Field named all_lines is a simple string to minimize memory allocations,
+usually a multi-line string. The standard implementation does not perform any
+formatting or transformations, when implementing a new formatter it is
+recommended to keep all_lines field as a multi-line string and prefix lines
+with additional info like level or timestamp:
 
 ```
 INFO:1611047686:All log lines are represented as a single multi-line string.
 DEBUG:1611047687:This is a second line.
 ```
 
-The standard format is good enough for standard output and error of UNIX terminal or syslog output. If multiple lines are expected (e.g. output of files for diff), JSON array should be considered instead. See Puppet format below for more details.
+The standard format is good enough for standard output and error of UNIX
+terminal or syslog output. If multiple lines are expected (e.g. output of files
+for diff), JSON array should be considered instead. See Puppet format below for
+more details.
 
-It is recommended to avoid performing transformations during storing of reports into database as reporting must be optimized for fast uploads. All transformations (e.g. turning all_lines into a HTML table with three columns for the example above) should be done when a report is fetched and displayed.
+It is recommended to avoid performing transformations during storing of reports
+into database as reporting must be optimized for fast uploads. All
+transformations (e.g. turning all_lines into a HTML table with three columns
+for the example above) should be done when a report is fetched and displayed.
 
-Whole JSON is stored in "body" database field, so additional fields can be added by implementations based on the standard report. An example standard report:
+Whole JSON is stored in "body" database field, so additional fields can be
+added by implementations based on the standard report. An example standard
+report:
 
 ```
 {
@@ -105,9 +140,14 @@ Whole JSON is stored in "body" database field, so additional fields can be added
 
 ### Puppet
 
-Report designed to fullfill needs of the legacy Foreman Puppet report based on the standard report. It shares common fields with the standard report (see above) but it has the following statuses: applied, restarted, failed, failed_restarts, skipped, pending. That's 10 bits per status with maximum value of 1024.
+Report designed to fullfill needs of the legacy Foreman Puppet report based on
+the standard report. It shares common fields with the standard report (see
+above) but it has the following statuses: applied, restarted, failed,
+failed_restarts, skipped, pending. That's 10 bits per status with maximum value
+of 1024.
 
-Instead of all_lines, contents is stored in logs array with every log being array of three elements:
+Instead of all_lines, contents is stored in logs array with every log being
+array of three elements:
 
 * level: one of debug, info, notice, warning, err, alert, emerg, crit
 * source: the puppet resource
@@ -115,7 +155,8 @@ Instead of all_lines, contents is stored in logs array with every log being arra
 
 Field resource_statuses only contains list of resources, but not more details.
 
-Field evaluation_times contains top 30 resource names and its evaluation times plus total sum under name of "Others" for the rest.
+Field evaluation_times contains top 30 resource names and its evaluation times
+plus total sum under name of "Others" for the rest.
 
 ```
 {
@@ -455,7 +496,11 @@ Field evaluation_times contains top 30 resource names and its evaluation times p
 
 ## Keywords
 
-Each report can contain field named keyword, an array of strings. These are strings, or tags, stored in a separate table with an index and associated with the report. Keyword should be in CamelCase, prefixed with the report type (e.g. `Puppet`). Reports must avoid creating too many keywords! Typically only failures should be reported.
+Each report can contain field named keyword, an array of strings. These are
+strings, or tags, stored in a separate table with an index and associated with
+the report. Keyword should be in CamelCase, prefixed with the report type (e.g.
+`Puppet`). Reports must avoid creating too many keywords! Typically only
+failures should be reported.
 
 Example keywords:
 
