@@ -27,15 +27,15 @@ The design is roughly the following:
 
 * Instead of modyfing current core report functionality which is customized by various plugins, new plugin is created.
 * New model class is created: `HostReport`, the reason for that is that this will be better upgrade experience, new tables can be migrated, data can be transformed and legacy tables `Report` and `ConfigReport` can be dropped afterwards. API will be completely different anyway, plugins will no longer handle directly with the model anymore.
-* New API endpoint is created, this will require modifications of ENC script, Ansible and OpenSCAP.
-* The API remains very same, tho with some differences. Report is sent in JSON, required HTTP argument "format" is required to allow storing reports without any input parsing (copy directly into database).
-* Foreman Puppet report format is modified for better performance - instead of individual log lines, whole report body is stored in one JSON string called "body". Parsing is done during report view/download from Foreman.
+* New API endpoint is created on smart proxy instead of foreman, this will require modifications of ENC script, Ansible and OpenSCAP.
+* All input processing is done on smart proxy, report is then forwarded to Foreman and directly stored in the database.
+* The API remains very same, tho with some differences. Report is sent in JSON, required HTTP arguments "format" and "hostname" are required to allow storing reports without any input parsing (copy directly into database).
 * Report content is stored in new field `body` as plain text (JSON) which is compressed by default by Postgres server.
+* Foreman Puppet report format is modified for better performance - instead of individual log lines, whole report body is stored in one JSON string called "body". Parsing is done during report view/download from Foreman.
 * Report origin is kept in a new `format` field (Foreman Puppet, Ansible, OpenSCAP, Plaintext). There is report format Plaintext which would be simply store report as-is without further processing.
 * Status column converted from integer to 64bit big int.
 * StatusCalculator is kept and extended to use all 64bits.
 * Plugin decides themselves how to store data in the `body` field in such a way that it’s presentable and searchable. Plugin authors should be dis-encouraged from complex (and slow) transformations tho - transformation during view should be encouraged.
-* Plugin API to implement new report formats.
 * New model `ReportKeyword(id: int, report_id: int, name: varchar)` is created so plugins can create arbitrary number of keywords which are associated with Report model (M:N).
 * Example keywords:
   * `PuppetHasFailedResource`
@@ -73,10 +73,10 @@ The most simple format, whole contents of HTTP payload is stored in body
 database field without any processing. When such format is displayed, it is
 presented as plain/text without any transformations or formatting.
 
-For backward compatibility, plugin will override the core reports API and store
-incoming reports as plaintext so nothing gets lost, reports will be still visible
-(but formatting will be human-unreadable) so users can take actions to reconfigure
-reporting via the new import API.
+For backward compatibility, the plugin will override the core reports API and
+store incoming reports as plaintext so nothing gets lost, reports will be still
+visible (but formatting will be human-unreadable) so users can take actions to
+reconfigure reporting via the new import API.
 
 ### Standard
 
@@ -508,6 +508,15 @@ Example keywords:
 * PuppetIsOutOfSync
 * PuppetHasFailure
 * PuppetResourceFailed:Package[git]
+
+## Other ideas
+
+Reports can have "archived" flag and during import into Foreman, reports could
+be stored into a directories alongside database for archival purposes. Deleting
+old reports was always huge pain in Foreman, but in this scenario it would be
+as easy as "set archived flag and delete body for all records older than X
+days". Those reports could remain in the database for longer period of time
+without any body, they could be side-loaded from the directory when needed.
 
 ## Contributing
 
