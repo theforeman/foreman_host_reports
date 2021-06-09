@@ -1,4 +1,4 @@
-require 'fhr/engine'
+require 'foreman_host_reports/engine'
 
-module Fhr
+module ForemanHostReports
 end

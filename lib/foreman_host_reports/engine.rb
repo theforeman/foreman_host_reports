@@ -1,6 +1,6 @@
-module Fhr
+module ForemanHostReports
   class Engine < ::Rails::Engine
-    isolate_namespace Fhr
+    isolate_namespace ForemanHostReports
     engine_name 'foreman_host_reports'
 
     config.autoload_paths += Dir["#{config.root}/app/controllers/concerns"]
@@ -11,32 +11,35 @@ module Fhr
 
     # Add any db migrations
     initializer 'foreman_host_reports.load_app_instance_data' do |app|
-      Fhr::Engine.paths['db/migrate'].existent.each do |path|
+      ForemanHostReports::Engine.paths['db/migrate'].existent.each do |path|
         app.config.paths['db/migrate'] << path
       end
     end
 
     initializer 'foreman_host_reports.register_plugin', :before => :finisher_hook do |_app|
       Foreman::Plugin.register :foreman_host_reports do
-        requires_foreman '>= 2.4.0'
+        requires_foreman '>= 2.5.0'
 
+        apipie_documented_controllers ["#{ForemanWebhooks::Engine.root}/app/controllers/api/v2/*.rb"]
         # Add Global files for extending foreman-core components and routes
         register_global_js_file 'global'
 
         # Add permissions
         security_block :foreman_host_reports do
-          permission :view_foreman_host_reports, { :'foreman_host_reports/example' => [:new_action],
-                                                      :'react' => [:index] }
+          permission :view_host_reports, { host_reports: %i[auto_complete_search],
+                                           'api/v2/host_reports': %i[index show export] }, resource_type: 'HostReport'
+          permission :create_host_reports, { 'api/v2/host_reports': [:create] }, resource_type: 'HostReport'
+          permission :destroy_host_reports, { 'api/v2/host_reports': [:destroy] }, resource_type: 'HostReport'
         end
 
-        # Add a new role called 'Discovery' if it doesn't exist
-        role 'ForemanHostReports', [:view_foreman_host_reports]
+        role 'Host reports manager', %i[view_host_reports create_host_reports destroy_host_reports]
 
         # add menu entry
-        sub_menu :top_menu, :plugin_template, icon: 'pficon pficon-enterprise', caption: N_('Plugin Template'), after: :hosts_menu do
-          menu :top_menu, :welcome, caption: N_('Welcome Page'), engine: Fhr::Engine
-          menu :top_menu, :new_action, caption: N_('New Action'), engine: Fhr::Engine
-        end
+        menu :top_menu, :host_reports, url: '/host_reports',
+                                       url_hash: { controller: :host_reports, action: :index },
+                                       caption: N_('Host Reports'),
+                                       parent: :monitor_menu,
+                                       before: :reports
 
         # add dashboard widget
         widget 'foreman_host_reports_widget', name: N_('Foreman plugin template widget'), sizex: 4, sizey: 1
@@ -45,10 +48,9 @@ module Fhr
 
     # Include concerns in this config.to_prepare block
     config.to_prepare do
-
       begin
-        Host::Managed.send(:include, Fhr::HostExtensions)
-        HostsHelper.send(:include, Fhr::HostsHelperExtensions)
+        Host::Managed.include ForemanHostReports::HostExtensions
+        SmartProxy.include ForemanHostReports::HostExtensions
       rescue => e
         Rails.logger.warn "ForemanHostReports: skipping engine hook (#{e})"
       end
@@ -56,12 +58,12 @@ module Fhr
 
     rake_tasks do
       Rake::Task['db:seed'].enhance do
-        Fhr::Engine.load_seed
+        ForemanHostReports::Engine.load_seed
       end
     end
 
     initializer 'foreman_host_reports.register_gettext', after: :load_config_initializers do |_app|
-      locale_dir = File.join(File.expand_path('../../..', __FILE__), 'locale')
+      locale_dir = File.join(File.expand_path('../..', __dir__), 'locale')
       locale_domain = 'foreman_host_reports'
       Foreman::Gettext::Support.add_text_domain locale_domain, locale_dir
     end
