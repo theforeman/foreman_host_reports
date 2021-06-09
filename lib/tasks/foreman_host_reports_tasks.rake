@@ -28,9 +28,9 @@ namespace :foreman_host_reports do
     begin
       require 'rubocop/rake_task'
       RuboCop::RakeTask.new(:rubocop_foreman_host_reports) do |task|
-        task.patterns = ["#{Fhr::Engine.root}/app/**/*.rb",
-                         "#{Fhr::Engine.root}/lib/**/*.rb",
-                         "#{Fhr::Engine.root}/test/**/*.rb"]
+        task.patterns = ["#{ForemanHostReports::Engine.root}/app/**/*.rb",
+                         "#{ForemanHostReports::Engine.root}/lib/**/*.rb",
+                         "#{ForemanHostReports::Engine.root}/test/**/*.rb"]
       end
     rescue
       puts 'Rubocop not loaded.'

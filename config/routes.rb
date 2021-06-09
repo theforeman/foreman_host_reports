@@ -1,9 +1,20 @@
-Fhr::Engine.routes.draw do
-  get 'new_action', to: 'example#new_action', as: 'new_action'
-  get 'plugin_template_description', to: 'example#react_template_page_description'
-  get 'welcome', to: '/react#index', as: 'welcome'
-end
+Rails.application.routes.draw do
+  match '/host_reports' => 'react#index', via: :get
 
-Foreman::Application.routes.draw do
-  mount Fhr::Engine, at: '/foreman_host_reports'
+  resources :host_reports, only: %i[] do
+    collection do
+      get 'auto_complete_search'
+    end
+  end
+
+  namespace :api, defaults: { format: 'json' } do
+    scope '(:apiv)', module: :v2, defaults: { apiv: 'v2' }, apiv: /v2/,
+                     constraints: ApiConstraints.new(version: 2, default: true) do
+      resources :host_reports, only: %i[index show create destroy] do
+        collection do
+          get 'export'
+        end
+      end
+    end
+  end
 end

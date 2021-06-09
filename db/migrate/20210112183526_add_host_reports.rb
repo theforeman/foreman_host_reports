@@ -1,13 +1,12 @@
-
 class AddHostReports < ActiveRecord::Migration[6.0]
   def change
-    create_table :fhr_reports do |t|
+    create_table :host_reports do |t|
       # Host reference, b-tree index.
       t.integer "host_id", null: false
 
       # Smart proxy which processed and uploaded, no index.
       t.integer "proxy_id"
-      
+
       # Explicit timestamp, replaces Rails timestamps, b-tree descending index.
       t.datetime "reported_at", null: false
 
@@ -33,4 +32,3 @@ class AddHostReports < ActiveRecord::Migration[6.0]
     end
   end
 end
-
