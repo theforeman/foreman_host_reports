@@ -42,4 +42,16 @@ class HostReport < ApplicationRecord
   }
 
   default_scope -> { order('reported_at DESC') }
+
+  def self.authorized_smart_proxy_features
+    @authorized_smart_proxy_features ||= %w[Puppet Ansible Openscap]
+  end
+
+  def self.register_smart_proxy_feature(feature)
+    @authorized_smart_proxy_features = (authorized_smart_proxy_features + [feature]).uniq
+  end
+
+  def self.unregister_smart_proxy_feature(feature)
+    @authorized_smart_proxy_features -= [feature]
+  end
 end

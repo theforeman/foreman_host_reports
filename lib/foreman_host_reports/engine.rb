@@ -40,9 +40,6 @@ module ForemanHostReports
                                        caption: N_('Host Reports'),
                                        parent: :monitor_menu,
                                        before: :reports
-
-        # add dashboard widget
-        widget 'foreman_host_reports_widget', name: N_('Foreman plugin template widget'), sizex: 4, sizey: 1
       end
     end
 
