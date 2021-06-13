@@ -20,7 +20,7 @@ module ForemanHostReports
       Foreman::Plugin.register :foreman_host_reports do
         requires_foreman '>= 2.5.0'
 
-        apipie_documented_controllers ["#{ForemanWebhooks::Engine.root}/app/controllers/api/v2/*.rb"]
+        apipie_documented_controllers ["#{ForemanHostReports::Engine.root}/app/controllers/api/v2/*.rb"]
         # Add Global files for extending foreman-core components and routes
         register_global_js_file 'global'
 
