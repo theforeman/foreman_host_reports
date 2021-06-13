@@ -22,6 +22,24 @@ Layout/LineLength:
 Rails:
   Enabled: true
 
+Rails/RefuteMethods:
+  EnforcedStyle: refute
+
+Rails/SkipsModelValidations:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
 Style/Alias:
   EnforcedStyle: prefer_alias_method
 

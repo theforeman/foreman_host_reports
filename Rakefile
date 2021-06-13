@@ -20,7 +20,7 @@ RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
 
-APP_RAKEFILE = File.expand_path('../test/dummy/Rakefile', __FILE__)
+APP_RAKEFILE = File.expand_path('test/dummy/Rakefile', __dir__)
 
 Bundler::GemHelper.install_tasks
 
@@ -35,12 +35,14 @@ end
 
 task default: :test
 
+# rubocop:disable Style/RescueStandardError
 begin
   require 'rubocop/rake_task'
   RuboCop::RakeTask.new
-rescue => _
+rescue => _e
   puts 'Rubocop not loaded.'
 end
+# rubocop:enable Style/RescueStandardError
 
 task :default do
   Rake::Task['rubocop'].execute

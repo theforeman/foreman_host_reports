@@ -24,6 +24,7 @@ namespace :test do
 end
 
 namespace :foreman_host_reports do
+  # rubocop:disable Rails/RakeEnvironment, Style/RescueStandardError
   task :rubocop do
     begin
       require 'rubocop/rake_task'
@@ -38,6 +39,7 @@ namespace :foreman_host_reports do
 
     Rake::Task['rubocop_foreman_host_reports'].invoke
   end
+  # rubocop:enable Rails/RakeEnvironment, Style/RescueStandardError
 end
 
 Rake::Task[:test].enhance ['test:foreman_host_reports']

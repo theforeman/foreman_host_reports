@@ -15,9 +15,9 @@ Rails.application.routes.draw do
           get 'export'
         end
       end
-      constraints(id: %r{[^\/]+}) do
+      constraints(id: %r{[^/]+}) do
         resources :hosts, only: [] do
-          constraints(host_id: %r{[^\/]+}) do
+          constraints(host_id: %r{[^/]+}) do
             resources :host_reports, only: %i[index]
           end
         end

@@ -44,14 +44,14 @@ module ForemanHostReports
     end
 
     # Include concerns in this config.to_prepare block
+    # rubocop:disable Style/RescueStandardError
     config.to_prepare do
-      begin
-        Host::Managed.include ForemanHostReports::HostExtensions
-        SmartProxy.include ForemanHostReports::HostExtensions
-      rescue => e
-        Rails.logger.warn "ForemanHostReports: skipping engine hook (#{e})"
-      end
+      Host::Managed.include ForemanHostReports::HostExtensions
+      SmartProxy.include ForemanHostReports::HostExtensions
+    rescue => e
+      Rails.logger.warn "ForemanHostReports: skipping engine hook (#{e})"
     end
+    # rubocop:enable Style/RescueStandardError
 
     rake_tasks do
       Rake::Task['db:seed'].enhance do

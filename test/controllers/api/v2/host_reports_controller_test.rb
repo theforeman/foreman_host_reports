@@ -182,7 +182,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
     FactoryBot.create(:host_report)
     get :index
     assert_response :success
-    assert_not_nil assigns(:host_reports)
+    refute_nil assigns(:host_reports)
     reports = ActiveSupport::JSON.decode(@response.body)
     refute_empty reports['results']
   end
@@ -201,7 +201,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       host_report.save!
       get :index, params: { organization_id: host_report_org.id }
       assert_response :success
-      assert_not_nil assigns(:host_reports)
+      refute_nil assigns(:host_reports)
       reports = ActiveSupport::JSON.decode(@response.body)
       refute_empty reports['results']
     end
@@ -228,7 +228,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
     report = FactoryBot.create(:host_report)
     get :index, params: { host_id: report.host.id }
     assert_response :success
-    assert_not_nil assigns(:host_reports)
+    refute_nil assigns(:host_reports)
     reports = ActiveSupport::JSON.decode(@response.body)
     refute_empty reports['results']
     assert_equal 1, reports['results'].count
@@ -238,7 +238,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
     host = FactoryBot.create(:host)
     get :index, params: { host_id: host.to_param }
     assert_response :success
-    assert_not_nil assigns(:host_reports)
+    refute_nil assigns(:host_reports)
     reports = ActiveSupport::JSON.decode(@response.body)
     assert_empty reports['results']
     assert_equal 0, reports['results'].count

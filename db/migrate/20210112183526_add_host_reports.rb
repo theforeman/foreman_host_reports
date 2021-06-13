@@ -1,3 +1,4 @@
+# rubocop:disable Rails/CreateTableWithTimestamps
 class AddHostReports < ActiveRecord::Migration[6.0]
   def change
     create_table :host_reports do |t|
@@ -32,3 +33,4 @@ class AddHostReports < ActiveRecord::Migration[6.0]
     end
   end
 end
+# rubocop:enable Rails/CreateTableWithTimestamps
