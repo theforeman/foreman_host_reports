@@ -5,16 +5,22 @@ module Api
     class HostReportsController < V2::BaseController
       include Api::Version2
       include Foreman::Controller::CsvResponder
+      include Foreman::Controller::SmartProxyAuth
       include ForemanHostReports::Controller::Parameters::HostReport
 
       before_action :find_resource, only: %i[destroy]
       before_action :resolve_ids, only: %i[create]
 
+      add_smart_proxy_filters :create, features: proc { HostReport.authorized_smart_proxy_features }
+
       api :GET, '/host_reports/', N_('List host reports')
       param_group :search_and_pagination, ::Api::V2::BaseController
+      param :host_id, :identifier, required: false, desc: N_('If provided, filters reports by the host')
       add_scoped_search_description_for(HostReport)
       def index
-        @host_reports = resource_scope_for_index.includes(:host, :proxy).my_reports
+        options = {}
+        options.update(host_id: params[:host_id]) if params[:host_id]
+        @host_reports = resource_scope_for_index(options)
       end
 
       api :GET, '/host_report/:id', N_('Show host report details')
@@ -49,6 +55,8 @@ module Api
       end
 
       api :GET, '/host_reports/export', N_('Export host reports in a CSV file')
+      param_group :search_and_pagination, ::Api::V2::BaseController
+      add_scoped_search_description_for(HostReport)
       def export
         params[:per_page] = 'all'
         @host_reports = resource_scope_for_index.preload(:host, :proxy)
@@ -66,7 +74,7 @@ module Api
 
       def resource_scope(options = {})
         options[:permission] = :view_host_reports
-        super(options).my_reports
+        super(options).includes(:host, :proxy).my_reports
       end
     end
   end
