@@ -46,8 +46,13 @@ module Api
 
       def create
         @host_report = HostReport.new(host_report_params)
-        params[:host_report][:keywords]&.uniq&.each do |keyword_name|
-          @host_report.report_keywords.push(ReportKeyword.find_or_initialize_by(name: keyword_name))
+        if params[:host_report][:keywords].present?
+          keywords = params[:host_report][:keywords].each_with_object([]) do |n, ks|
+            ks << { name: n }
+          end
+          @host_report.report_keyword_ids = ReportKeyword.upsert_all(
+            keywords, unique_by: :name
+          ).rows.flatten
         end
         process_response @host_report.save
       end
