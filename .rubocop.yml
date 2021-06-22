@@ -21,7 +21,10 @@ Layout/EmptyLineAfterGuardClause:
   Enabled: false
 
 Layout/LineLength:
-  Enabled: 111 # TODO: discuss and set this
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
 
 Rails:
   Enabled: true
@@ -39,6 +42,9 @@ Metrics/BlockLength:
   Enabled: false
 
 Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/IfUnlessModifier:
   Enabled: false
 
 Metrics/ClassLength:
