@@ -37,6 +37,7 @@ module Api
           param :status, Integer, required: true, desc: N_('Bitfield with arbitrary amount of status counters')
           param :body, String, required: true, desc: N_('String with JSON formatted body of the report')
           param :proxy, String, required: false, desc: N_('Hostname of the proxy processed the report')
+          param :keywords, Array, of: String, required: false, desc: N_('A list of keywords to associate with the report for better searching')
         end
       end
 
@@ -45,6 +46,14 @@ module Api
 
       def create
         @host_report = HostReport.new(host_report_params)
+        if params[:host_report][:keywords].present?
+          keywords = params[:host_report][:keywords].each_with_object([]) do |n, ks|
+            ks << { name: n }
+          end
+          @host_report.report_keyword_ids = ReportKeyword.upsert_all(
+            keywords, unique_by: :name
+          ).rows.flatten
+        end
         process_response @host_report.save
       end
 

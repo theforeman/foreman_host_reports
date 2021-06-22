@@ -6,6 +6,7 @@ class HostReport < ApplicationRecord
   validates_lengths_from_database
   belongs_to_host
   belongs_to :proxy, class_name: 'SmartProxy'
+  has_and_belongs_to_many :report_keywords
 
   has_one :organization, through: :host
   has_one :location, through: :host
@@ -32,6 +33,7 @@ class HostReport < ApplicationRecord
   scoped_search on: :host_id, complete_value: false, only_explicit: true
   scoped_search on: :proxy_id, complete_value: false, only_explicit: true
   scoped_search on: :format, complete_value: { plain: 0, puppet: 1, ansible: 2, openscap: 3 }
+  scoped_search relation: :report_keywords, on: :name, complete_value: true, rename: :keyword
 
   scope :recent, ->(*args) { where("reported_at > ?", (args.first || 1.day.ago)).order(:reported_at) }
 

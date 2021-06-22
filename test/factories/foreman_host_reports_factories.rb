@@ -5,4 +5,8 @@ FactoryBot.define do
     status { 0 }
     body { 'report data' }
   end
+
+  factory :report_keyword do
+    sequence(:name) { |n| "Keyword-#{n}" }
+  end
 end

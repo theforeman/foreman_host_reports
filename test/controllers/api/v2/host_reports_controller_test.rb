@@ -50,6 +50,38 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       assert_response :unprocessable_entity
     end
 
+    test 'assign keywords' do
+      User.current = nil
+      post :create, params: {
+        host_report: {
+          host: host.name, body: report_body, reported_at: Time.current,
+          status: 0, keywords: %w[HasError HasFailedResource]
+        },
+      }, session: set_session_user
+      report = ActiveSupport::JSON.decode(@response.body)
+      assert_response :created
+      refute_empty report['keywords']
+    end
+
+    test 're-use existing keywords' do
+      User.current = nil
+      assert_difference('ReportKeyword.count', 2) do
+        post :create, params: {
+          host_report: {
+            host: host.name, body: report_body, reported_at: Time.current,
+            status: 0, keywords: %w[HasError HasFailedResource]
+          },
+        }, session: set_session_user
+
+        post :create, params: {
+          host_report: {
+            host: host.name, body: report_body, reported_at: Time.current,
+            status: 0, keywords: %w[HasError HasFailedResource]
+          },
+        }, session: set_session_user
+      end
+    end
+
     test 'when ":restrict_registered_smart_proxies" is false, HTTP requests should be able to create a report' do
       Setting[:restrict_registered_smart_proxies] = false
       SETTINGS[:require_ssl] = false
