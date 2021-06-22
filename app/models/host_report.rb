@@ -11,7 +11,7 @@ class HostReport < ApplicationRecord
   has_one :organization, through: :host
   has_one :location, through: :host
 
-  validates :host_id, :reported_at, :status, :body, presence: true
+  validates :host_id, :reported_at, :status, presence: true
 
   enum format: {
     # plain text report (no processing)

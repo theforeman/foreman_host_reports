@@ -45,9 +45,15 @@ module Api
       param_group :host_report, as: :create
 
       def create
-        @host_report = HostReport.new(host_report_params)
-        if params[:host_report][:keywords].present?
-          keywords = params[:host_report][:keywords].each_with_object([]) do |n, ks|
+        the_body = params[:host_report].delete(:body)
+        if the_body && !the_body.is_a?(String)
+          logger.warn "Report body not as a string, serializing JSON"
+          the_body = JSON.pretty_generate(the_body)
+        end
+        keywords = params[:host_report].delete(:keywords)
+        @host_report = HostReport.new(host_report_params.merge(body: the_body))
+        if keywords.present?
+          keywords = keywords.each_with_object([]) do |n, ks|
             ks << { name: n }
           end
           @host_report.report_keyword_ids = ReportKeyword.upsert_all(
