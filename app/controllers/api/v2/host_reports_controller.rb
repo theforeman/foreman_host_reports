@@ -45,6 +45,7 @@ module Api
       param_group :host_report, as: :create
 
       def create
+        params[:host_report].delete(:version)
         the_body = params[:host_report].delete(:body)
         if the_body && !the_body.is_a?(String)
           logger.warn "Report body not as a string, serializing JSON"
@@ -60,7 +61,9 @@ module Api
             keywords, unique_by: :name
           ).rows.flatten
         end
-        process_response @host_report.save
+        result = @host_report.save
+        @host_report.body = nil
+        process_response result
       end
 
       api :DELETE, '/host_reports/:id', N_('Delete a host report')
