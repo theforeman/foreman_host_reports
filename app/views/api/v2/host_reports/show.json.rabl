@@ -4,7 +4,7 @@ object @host_report
 
 extends 'api/v2/host_reports/main'
 
-attributes :status, :body
+attributes :body
 
 node :keywords do |report|
   report.report_keywords.map(&:name)

@@ -1,12 +1,23 @@
 import React from 'react';
-import WelcomePage from './WelcomePage';
+import ConnectedHostReportsIndexPage from './HostReports/IndexPage';
+import ConnectedHostReportsShowPage from './HostReports/ShowPage';
 
-const routes = [
+const ForemanHostReportsRoutes = [
   {
-    path: '/foreman_host_reports/welcome',
+    path: '/host_reports',
     exact: true,
-    render: (props) => <WelcomePage {...props} />,
+    render: props => <ConnectedHostReportsIndexPage {...props} />,
+  },
+  {
+    path: '/host_reports/:id([0-9]+)',
+    exact: true,
+    render: props => <ConnectedHostReportsShowPage {...props} />,
+  },
+  {
+    path: '/hosts/:hostId([0-9]+)/host_reports',
+    exact: true,
+    render: props => <ConnectedHostReportsIndexPage {...props} />,
   },
 ];
 
-export default routes;
+export default ForemanHostReportsRoutes;

@@ -19,7 +19,6 @@ class HostReport < ApplicationRecord
     # standard report (status + logs in plain text)
     puppet: 1,
     ansible: 2,
-    openscap: 3,
   }.freeze
 
   STATUS = {
@@ -32,7 +31,7 @@ class HostReport < ApplicationRecord
   scoped_search on: :reported_at, complete_value: true, default_order: :desc, rename: :reported, only_explicit: true, aliases: %i[last_report reported_at]
   scoped_search on: :host_id, complete_value: false, only_explicit: true
   scoped_search on: :proxy_id, complete_value: false, only_explicit: true
-  scoped_search on: :format, complete_value: { plain: 0, puppet: 1, ansible: 2, openscap: 3 }
+  scoped_search on: :format, complete_value: { plain: 0, puppet: 1, ansible: 2 }
   scoped_search relation: :report_keywords, on: :name, complete_value: true, rename: :keyword
 
   scope :recent, ->(*args) { where("reported_at > ?", (args.first || 1.day.ago)).order(:reported_at) }
@@ -45,8 +44,18 @@ class HostReport < ApplicationRecord
 
   default_scope -> { order('reported_at DESC') }
 
+  # TODO: temporary until we decide what will status bitfiled be exactly
+  def status
+    @status ||= case format
+                when 'puppet'
+                  JSON.parse(body)['metrics']['resources']['values']
+                else
+                  super
+                end
+  end
+
   def self.authorized_smart_proxy_features
-    @authorized_smart_proxy_features ||= %w[Puppet Ansible Openscap]
+    @authorized_smart_proxy_features ||= %w[Puppet Ansible]
   end
 
   def self.register_smart_proxy_feature(feature)

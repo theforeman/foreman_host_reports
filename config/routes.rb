@@ -1,7 +1,13 @@
 Rails.application.routes.draw do
   match '/host_reports' => 'react#index', via: :get
 
-  resources :host_reports, only: %i[] do
+  resources :hosts do
+    member do
+      match 'host_reports', to: 'react#index', via: :get
+    end
+  end
+
+  resources :host_reports, only: %i[show] do
     collection do
       get 'auto_complete_search'
     end
