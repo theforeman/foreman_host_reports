@@ -18,7 +18,7 @@ module ForemanHostReports
 
     initializer 'foreman_host_reports.register_plugin', :before => :finisher_hook do |_app|
       Foreman::Plugin.register :foreman_host_reports do
-        requires_foreman '>= 2.5.0'
+        requires_foreman '>= 3.0.0'
 
         apipie_documented_controllers ["#{ForemanHostReports::Engine.root}/app/controllers/api/v2/*.rb"]
         # Add Global files for extending foreman-core components and routes
@@ -26,7 +26,7 @@ module ForemanHostReports
 
         # Add permissions
         security_block :foreman_host_reports do
-          permission :view_host_reports, { host_reports: %i[auto_complete_search],
+          permission :view_host_reports, { host_reports: %i[index show auto_complete_search],
                                            'api/v2/host_reports': %i[index show export] }, resource_type: 'HostReport'
           permission :create_host_reports, { 'api/v2/host_reports': [:create] }, resource_type: 'HostReport'
           permission :destroy_host_reports, { 'api/v2/host_reports': [:destroy] }, resource_type: 'HostReport'
