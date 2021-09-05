@@ -54,12 +54,11 @@ module Api
         keywords = params[:host_report].delete(:keywords)
         @host_report = HostReport.new(host_report_params.merge(body: the_body))
         if keywords.present?
-          keywords = keywords.each_with_object([]) do |n, ks|
+          keywords_to_insert = keywords.each_with_object([]) do |n, ks|
             ks << { name: n }
           end
-          @host_report.report_keyword_ids = ReportKeyword.upsert_all(
-            keywords, unique_by: :name
-          ).rows.flatten
+          ReportKeyword.upsert_all(keywords_to_insert, unique_by: :name)
+          @host_report.report_keyword_ids = ReportKeyword.where(name: keywords).distinct.pluck(:id)
         end
         result = @host_report.save
         @host_report.body = nil
@@ -87,7 +86,7 @@ module Api
         hostname = params[:host_report].delete(:host)
         proxyname = params[:host_report].delete(:proxy)
         params[:host_report][:host_id] ||= Host.find_by(name: hostname)&.id
-        params[:host_report][:proxy_id] ||= SmartProxy.find_by(name: proxyname)&.id
+        params[:host_report][:proxy_id] ||= SmartProxy.unscoped.find_by(name: proxyname)&.id
       end
 
       def resource_scope(options = {})
