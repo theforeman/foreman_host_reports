@@ -6,6 +6,8 @@ import { sprintf, translate as __ } from 'foremanReact/common/I18n';
 
 import formats from './formatImages';
 
+import './FormatCell.scss';
+
 const FormatCell = ({ format }) => {
   switch (format) {
     case 'plain':
@@ -18,6 +20,7 @@ const FormatCell = ({ format }) => {
     case 'puppet':
       return (
         <img
+          className="format-img"
           src={formats.puppet}
           alt="Puppet"
           title={sprintf(__('Reported by %s'), 'Puppet')}
@@ -26,6 +29,7 @@ const FormatCell = ({ format }) => {
     case 'ansible':
       return (
         <img
+          className="format-img"
           src={formats.ansible}
           alt="Ansible"
           title={sprintf(__('Reported by %s'), 'Ansible')}

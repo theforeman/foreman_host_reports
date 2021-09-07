@@ -6,7 +6,7 @@ import { sprintf, translate as __ } from 'foremanReact/common/I18n';
 import * as diffModalActions from 'foremanReact/components/ConfigReports/DiffModal/DiffModalActions';
 import DiffModal from 'foremanReact/components/ConfigReports/DiffModal';
 
-import { reportTag } from './helpers';
+import { msgLevelClasses } from './helpers';
 
 const PuppetLogs = ({ logs, environment }) => {
   const dispatch = useDispatch();
@@ -29,16 +29,16 @@ const PuppetLogs = ({ logs, environment }) => {
       >
         <thead>
           <tr>
-            <th> {__('Level')} </th>
-            <th> {__('Resource')} </th>
-            <th> {__('Message')} </th>
+            <th className="col col-md"> {__('Level')} </th>
+            <th className="col col-md-3"> {__('Resource')} </th>
+            <th className="col col-md-9"> {__('Message')} </th>
           </tr>
         </thead>
         <tbody>
           {logs.map((log, i) => (
             <tr key={`tr-${i + 1}`}>
               <td>
-                <span className={reportTag(log[0])}>{log[0]}</span>
+                <span className={msgLevelClasses(log[0])}>{log[0]}</span>
               </td>
               <td className="break-me">{log[1]}</td>
               {log[2].startsWith('\n---') ? (

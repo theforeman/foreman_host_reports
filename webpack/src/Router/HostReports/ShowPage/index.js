@@ -19,7 +19,7 @@ import {
   selectPermissions,
 } from './ShowPageSelectors';
 
-import { fetchAndPush } from './ShowPageActions';
+import { fetchAndPush } from '../IndexPage/IndexPageActions';
 
 const ConnectedHostReportsShowPage = ({ match }) => {
   const dispatch = useDispatch();
@@ -58,6 +58,7 @@ const ConnectedHostReportsShowPage = ({ match }) => {
     <HostReportsShowPage
       id={report.id}
       body={report.body}
+      format={report.format}
       host={report.host}
       reportedAt={report.reportedAt}
       permissions={permissions}

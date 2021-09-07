@@ -1,4 +1,4 @@
-export const reportTag = level => {
+export const msgLevelClasses = level => {
   let tag;
   switch (level) {
     case 'notice':

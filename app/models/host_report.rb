@@ -45,14 +45,18 @@ class HostReport < ApplicationRecord
   default_scope -> { order('reported_at DESC') }
 
   # TODO: temporary until we decide what will status bitfiled be exactly
+  # rubocop:disable Style/RescueModifier
   def status
     @status ||= case format
                 when 'puppet'
-                  JSON.parse(body)['metrics']['resources']['values']
+                  JSON.parse(body)['metrics']['resources']['values'] rescue []
+                when 'ansible'
+                  JSON.parse(body)['status'] rescue {}
                 else
                   super
                 end
   end
+  # rubocop:enable Style/RescueModifier
 
   def self.authorized_smart_proxy_features
     @authorized_smart_proxy_features ||= %w[Puppet Ansible]

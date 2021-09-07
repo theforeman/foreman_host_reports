@@ -7,7 +7,9 @@ import { ContextSelector, ContextSelectorItem } from '@patternfly/react-core';
 
 import ReportLogs from '../ReportLogs';
 
-const ReportLogsFilter = ({ format, logs, reportedAt, meta }) => {
+const ReportLogsFilter = ({ format, reportedAt, meta }) => {
+  const reportedAtLocal = new Date(reportedAt);
+  const { logs } = meta;
   const filterItems = [
     { text: __('All messages'), accepts: [] },
     {
@@ -51,7 +53,7 @@ const ReportLogsFilter = ({ format, logs, reportedAt, meta }) => {
   const filterLogs = (toFilter, accepts) => {
     if (!accepts.length) return toFilter;
 
-    return toFilter.filter(log => accepts.includes(log[0]));
+    return toFilter.filter(log => accepts.includes(log[0] || log.level));
   };
 
   useEffect(() => {
@@ -86,7 +88,9 @@ const ReportLogsFilter = ({ format, logs, reportedAt, meta }) => {
           </ContextSelectorItem>
         ))}
       </ContextSelector>
-      <p className="ra">{sprintf(__('Reported at %s'), reportedAt)}</p>
+      <p className="ra">
+        {sprintf(__('Reported at %s'), reportedAtLocal.toLocaleString())}
+      </p>
       <ReportLogs format={format} logs={filteredLogs} meta={meta} />
     </>
   );
@@ -96,11 +100,9 @@ ReportLogsFilter.propTypes = {
   format: PropTypes.string.isRequired,
   reportedAt: PropTypes.string.isRequired,
   meta: PropTypes.object,
-  logs: PropTypes.array,
 };
 
 ReportLogsFilter.defaultProps = {
-  logs: [],
   meta: {},
 };
 
