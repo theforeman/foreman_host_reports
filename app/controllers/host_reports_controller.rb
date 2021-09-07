@@ -17,6 +17,7 @@ class HostReportsController < ::ApplicationController
           host_report: {
             id: @host_report.id,
             body: JSON.parse(@host_report.body),
+            format: @host_report.format,
             host: {
               id: @host_report.host.id,
               name: @host_report.host.name,
@@ -25,7 +26,7 @@ class HostReportsController < ::ApplicationController
               id: @host_report.proxy&.id,
               name: @host_report.proxy&.name,
             },
-            reported_at: @host_report.reported_at.utc.to_s,
+            reported_at: @host_report.reported_at,
           },
           permissions: {
             can_delete: authorized_for(auth_object: @host_report, authorizer: authorizer, permission: "destroy_#{controller_permission}"),

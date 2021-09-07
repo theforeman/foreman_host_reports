@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { capitalize } from 'lodash';
 
 import './StatusCell.scss';
 
@@ -24,7 +25,7 @@ const StatusCell = ({ format, value }) => {
               if (!status[2]) style = 'label-default';
               return (
                 <li key={status[0]}>
-                  {status[1]}:
+                  {`${status[1]}: `}
                   <span className={`label ${style}`}>{status[2]}</span>
                 </li>
               );
@@ -32,14 +33,35 @@ const StatusCell = ({ format, value }) => {
           </ul>
         </td>
       );
-    // TODO: Ansible statuses
-    // case 'ansible':
-    //   return (
-    //   );
-    // TODO: decide what to show for plain reports
-    // default:
-    //   return (
-    //   );
+    case 'ansible':
+      return (
+        <td>
+          <ul className="status-list">
+            {Object.keys(value).map(status => {
+              let style = '';
+              switch (status) {
+                case 'failed':
+                  style = 'label-danger';
+                  break;
+                case 'skipped':
+                  style = 'label-warning';
+                  break;
+                default:
+                  style = 'label-info';
+              }
+              if (!value[status]) style = 'label-default';
+              return (
+                <li key={status}>
+                  {`${capitalize(status)}: `}
+                  <span className={`label ${style}`}>{value[status]}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </td>
+      );
+    default:
+      return <td>N/A</td>;
   }
 };
 

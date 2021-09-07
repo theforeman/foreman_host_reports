@@ -1,4 +1,5 @@
 import React from 'react';
+import JSONTree from 'react-json-tree';
 import PropTypes from 'prop-types';
 import { Button, Grid, GridItem } from '@patternfly/react-core';
 
@@ -20,6 +21,7 @@ import {
 const HostReportsShowPage = ({
   id,
   body,
+  format,
   host,
   reportedAt,
   permissions,
@@ -72,8 +74,24 @@ const HostReportsShowPage = ({
     </Button>
   );
 
-  const meta = {
-    environment: body.environment,
+  const meta = {};
+  switch (format) {
+    case 'puppet':
+      meta.environment = body.environment;
+      meta.logs = body.logs;
+      break;
+    case 'ansible':
+      meta.checkMode = body.checkMode;
+      meta.logs = body.results;
+      break;
+    default:
+      break;
+  }
+
+  const theme = {
+    scheme: 'foreman',
+    backgroundColor: 'rgba(0, 0, 0, 255)',
+    base00: 'rgba(0, 0, 0, 0)',
   };
 
   return (
@@ -101,19 +119,24 @@ const HostReportsShowPage = ({
         }}
         toolbarButtons={buttons}
       >
-        <Grid hasGutter>
-          <GridItem>
-            <ReportLogsFilter
-              format={body.format}
-              logs={body.logs}
-              reportedAt={reportedAt}
-              meta={meta}
-            />
-          </GridItem>
-          <GridItem>
-            <HostReportMetrics metrics={body.metrics} />
-          </GridItem>
-        </Grid>
+        {format === 'plain' ? (
+          <JSONTree data={body} hideRoot theme={theme} />
+        ) : (
+          <Grid hasGutter>
+            <GridItem>
+              <ReportLogsFilter
+                format={format}
+                reportedAt={reportedAt}
+                meta={meta}
+              />
+            </GridItem>
+            {format === 'puppet' ? (
+              <GridItem>
+                <HostReportMetrics metrics={body.metrics} />
+              </GridItem>
+            ) : null}
+          </Grid>
+        )}
       </PageLayout>
     </React.Fragment>
   );
@@ -122,6 +145,7 @@ const HostReportsShowPage = ({
 HostReportsShowPage.propTypes = {
   id: PropTypes.number.isRequired,
   body: PropTypes.object.isRequired,
+  format: PropTypes.string.isRequired,
   host: PropTypes.object.isRequired,
   reportedAt: PropTypes.string.isRequired,
   permissions: PropTypes.object.isRequired,
