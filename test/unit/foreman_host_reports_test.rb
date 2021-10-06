@@ -1,11 +1,9 @@
 require 'test_plugin_helper'
 
 class ForemanHostReportsTest < ActiveSupport::TestCase
-  setup do
-    User.current = User.find_by(login: 'admin')
-  end
-
-  test 'the truth' do
-    assert true
+  test 'should find host reports by keyword' do
+    report = FactoryBot.create(:host_report, :with_keyword)
+    result = HostReport.search_for("keyword= HasError").pluck(:id)
+    assert_include result, report.id
   end
 end

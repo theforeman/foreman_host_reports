@@ -1,13 +1,12 @@
 class HostReport < ApplicationRecord
   include Authorizable
+  include ScopedSearchExtensions
 
   delegate :logger, to: :Rails
 
   validates_lengths_from_database
   belongs_to_host
   belongs_to :proxy, class_name: 'SmartProxy'
-  has_and_belongs_to_many :report_keywords
-
   has_one :organization, through: :host
   has_one :location, through: :host
 
@@ -26,13 +25,15 @@ class HostReport < ApplicationRecord
   }.freeze
 
   scoped_search relation: :host, on: :name, complete_value: true, rename: :host, aliases: %i[host_name]
+  scoped_search relation: :proxy, on: :name, complete_value: true, rename: :proxy
   scoped_search relation: :organization, on: :name, complete_value: true, rename: :organization
   scoped_search relation: :location, on: :name, complete_value: true, rename: :location
   scoped_search on: :reported_at, complete_value: true, default_order: :desc, rename: :reported, only_explicit: true, aliases: %i[last_report reported_at]
-  scoped_search on: :host_id, complete_value: false, only_explicit: true
-  scoped_search on: :proxy_id, complete_value: false, only_explicit: true
   scoped_search on: :format, complete_value: { plain: 0, puppet: 1, ansible: 2 }
-  scoped_search relation: :report_keywords, on: :name, complete_value: true, rename: :keyword
+  # This is to simulate has_many :report_keywords relation for scoped_search library to work
+  # NOTE: This won't work for any other purpose
+  reflections['report_keywords'] = ReportKeyword
+  scoped_search relation: :report_keywords, on: :name, complete_value: true, rename: :keyword, ext_method: :search_by_keyword, operators: ['=']
 
   scope :recent, ->(*args) { where("reported_at > ?", (args.first || 1.day.ago)).order(:reported_at) }
 
@@ -58,6 +59,10 @@ class HostReport < ApplicationRecord
   end
   # rubocop:enable Style/RescueModifier
 
+  def report_keywords
+    ReportKeyword.where(id: report_keyword_ids)
+  end
+
   def self.authorized_smart_proxy_features
     @authorized_smart_proxy_features ||= %w[Puppet Ansible]
   end
@@ -68,5 +73,13 @@ class HostReport < ApplicationRecord
 
   def self.unregister_smart_proxy_feature(feature)
     @authorized_smart_proxy_features -= [feature]
+  end
+
+  def self.search_by_keyword(_key, operator, value)
+    conditions = sanitize_sql_for_conditions(["report_keywords.name #{operator} ?", value_to_sql(operator, value)])
+    keyword_ids = ReportKeyword.where(conditions).distinct.pluck(:id)
+    {
+      conditions: sanitize_sql_for_conditions(["host_reports.report_keyword_ids @> ?", "{#{keyword_ids.join(',')}}"]),
+    }
   end
 end
