@@ -5,11 +5,8 @@ class CreateReportKeywords < ActiveRecord::Migration[6.0]
       t.string :name, null: false, index: { unique: true }
     end
 
-    create_table :host_reports_report_keywords, id: false do |t|
-      # belongs_to defaults to index
-      t.belongs_to :host_report
-      t.belongs_to :report_keyword
-    end
+    add_column :host_reports, :report_keyword_ids, :integer, array: true, default: []
+    add_index :host_reports, :report_keyword_ids, using: 'gin'
   end
 end
 # rubocop:enable Rails/CreateTableWithTimestamps
