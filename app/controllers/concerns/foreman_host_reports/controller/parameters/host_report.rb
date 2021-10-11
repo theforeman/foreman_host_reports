@@ -10,7 +10,8 @@ module ForemanHostReports
           def host_report_params_filter
             Foreman::ParameterFilter.new(::HostReport).tap do |filter|
               # body is permitted in controller
-              filter.permit :format, :version, :host, :proxy, :reported_at, :status, :proxy_id, :host_id
+              filter.permit :format, :version, :host, :proxy, :reported_at,
+                :proxy_id, :host_id, :applied, :failed, :pending, :other
               filter.permit :keywords => []
             end
           end

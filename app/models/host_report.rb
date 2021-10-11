@@ -10,7 +10,7 @@ class HostReport < ApplicationRecord
   has_one :organization, through: :host
   has_one :location, through: :host
 
-  validates :host_id, :reported_at, :status, presence: true
+  validates :host_id, :reported_at, presence: true
 
   enum format: {
     # plain text report (no processing)
@@ -18,10 +18,6 @@ class HostReport < ApplicationRecord
     # standard report (status + logs in plain text)
     puppet: 1,
     ansible: 2,
-  }.freeze
-
-  STATUS = {
-    plain: %w[debug normal warning error],
   }.freeze
 
   scoped_search relation: :host, on: :name, complete_value: true, rename: :host, aliases: %i[host_name]
@@ -44,20 +40,6 @@ class HostReport < ApplicationRecord
   }
 
   default_scope -> { order('reported_at DESC') }
-
-  # TODO: temporary until we decide what will status bitfiled be exactly
-  # rubocop:disable Style/RescueModifier
-  def status
-    @status ||= case format
-                when 'puppet'
-                  JSON.parse(body)['metrics']['resources']['values'] rescue []
-                when 'ansible'
-                  JSON.parse(body)['status'] rescue {}
-                else
-                  super
-                end
-  end
-  # rubocop:enable Style/RescueModifier
 
   def report_keywords
     ReportKeyword.where(id: report_keyword_ids)

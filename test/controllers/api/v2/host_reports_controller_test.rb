@@ -38,7 +38,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          status: 0
+          applied: 5, failed: 1, pending: 1, other: 0
         },
       }, session: set_session_user
       assert_response :success
@@ -50,12 +50,30 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       assert_response :unprocessable_entity
     end
 
+    test 'store statuses' do
+      User.current = nil
+      post :create, params: {
+        host_report: {
+          host: host.name, body: report_body, reported_at: Time.current,
+          keywords: %w[HasError HasFailedResource],
+          applied: 5, failed: 1, pending: 1, other: 6
+        },
+      }, session: set_session_user
+      report = ActiveSupport::JSON.decode(@response.body)
+      assert_response :created
+      assert_equal 5, report['applied']
+      assert_equal 1, report['failed']
+      assert_equal 1, report['pending']
+      assert_equal 6, report['other']
+    end
+
     test 'assign keywords' do
       User.current = nil
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          status: 0, keywords: %w[HasError HasFailedResource]
+          keywords: %w[HasError HasFailedResource],
+          applied: 5, failed: 1, pending: 1, other: 0
         },
       }, session: set_session_user
       report = ActiveSupport::JSON.decode(@response.body)
@@ -69,14 +87,16 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
         post :create, params: {
           host_report: {
             host: host.name, body: report_body, reported_at: Time.current,
-            status: 0, keywords: %w[HasError HasFailedResource]
+            keywords: %w[HasError HasFailedResource],
+            applied: 5, failed: 1, pending: 1, other: 0
           },
         }, session: set_session_user
 
         post :create, params: {
           host_report: {
             host: host.name, body: report_body, reported_at: Time.current,
-            status: 0, keywords: %w[HasError HasFailedResource]
+            keywords: %w[HasError HasFailedResource],
+            applied: 5, failed: 1, pending: 1, other: 0
           },
         }, session: set_session_user
       end
@@ -90,7 +110,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          status: 0
+          applied: 5, failed: 1, pending: 1, other: 0
         },
       }
       assert_nil @controller.detected_proxy
@@ -109,7 +129,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          status: 0
+          applied: 5, failed: 1, pending: 1, other: 0
         },
       }
       assert_equal proxy, @controller.detected_proxy
@@ -124,7 +144,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          status: 0
+          applied: 5, failed: 1, pending: 1, other: 0
         },
       }
       assert_response :forbidden
@@ -140,7 +160,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          status: 0
+          applied: 5, failed: 1, pending: 1, other: 0
         },
       }
       assert_response :created
@@ -156,7 +176,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          status: 0
+          applied: 5, failed: 1, pending: 1, other: 0
         },
       }
       assert_response :forbidden
@@ -172,7 +192,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          status: 0
+          applied: 5, failed: 1, pending: 1, other: 0
         },
       }
       assert_response :forbidden
@@ -187,7 +207,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          status: 0
+          applied: 5, failed: 1, pending: 1, other: 0
         },
       }
       assert_response :forbidden
@@ -203,7 +223,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          status: 0
+          applied: 5, failed: 1, pending: 1, other: 0
         },
       }
       assert_response :created
