@@ -2,8 +2,14 @@ import React from 'react';
 
 import StatusCell from '../StatusCell';
 
-const statusFormatter = () => (value, { rowData: { format, status } }) => (
-  <StatusCell format={format} value={value} />
-);
+const statusFormatter = () => (_, { rowData }) => {
+  const statuses = {
+    applied: rowData.applied,
+    failed: rowData.failed,
+    pending: rowData.pending,
+    other: rowData.other,
+  };
+  return <StatusCell statuses={statuses} />;
+};
 
 export default statusFormatter;

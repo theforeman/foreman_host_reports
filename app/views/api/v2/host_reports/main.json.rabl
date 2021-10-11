@@ -5,7 +5,8 @@ object @host_report
 extends 'api/v2/host_reports/base'
 extends 'api/v2/layouts/permissions'
 
-attributes :format, :host_id, :proxy_id, :reported_at, :status
+attributes :format, :host_id, :proxy_id, :reported_at, :applied, :failed,
+  :pending, :other
 
 node(:host_name) do |report|
   report.host.name

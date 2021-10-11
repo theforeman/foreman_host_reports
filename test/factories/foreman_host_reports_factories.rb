@@ -2,7 +2,10 @@ FactoryBot.define do
   factory :host_report do
     host
     reported_at { Time.now.utc }
-    status { 0 }
+    applied { 0 }
+    failed { 0 }
+    pending { 0 }
+    other { 0 }
     body { 'report data' }
   end
 
