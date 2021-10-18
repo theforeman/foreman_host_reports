@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.summary     = 'Foreman reporting engine'
   s.description = 'Fast and efficient reporting capabilities'
 
-  s.files = Dir['{app,config,db,lib,locale,webpack}/**/*'] + ['LICENSE', 'Rakefile', 'README.md', 'package.json']
+  s.files = Dir['{app,config,db,lib,locale,webpack}/**/*'] + ['LICENSE', 'README.md', 'package.json']
   s.test_files = Dir['test/**/*'] + Dir['webpack/**/__tests__/*.js']
 
   s.required_ruby_version = '>= 2.5.0'
