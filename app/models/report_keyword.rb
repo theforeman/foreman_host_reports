@@ -8,4 +8,9 @@ class ReportKeyword < ApplicationRecord
   def self.klass
     self
   end
+
+  # Needed for ActiveRecord to simulate ActiveRecord::Associations::CollectionProxy
+  def self.macro
+    :has_many
+  end
 end
