@@ -1,11 +1,20 @@
 FactoryBot.define do
   factory :host_report do
     host
+    sequence(:proxy) { |n| FactoryBot.create(:smart_proxy, url: "http://proxy#{n}.example.com", features: [FactoryBot.create(:feature, name: 'Reports')]) }
     reported_at { Time.now.utc }
     change { 0 }
     nochange { 0 }
     failure { 0 }
-    body { 'report data' }
+    body { '{}' }
+  end
+
+  trait :puppet_format do
+    format { 'puppet' }
+  end
+
+  trait :ansible_format do
+    format { 'ansible' }
   end
 
   trait :with_keyword do

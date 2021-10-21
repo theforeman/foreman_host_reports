@@ -24,9 +24,9 @@ class HostReport < ApplicationRecord
   scoped_search relation: :proxy, on: :name, complete_value: true, rename: :proxy
   scoped_search relation: :organization, on: :name, complete_value: true, rename: :organization
   scoped_search relation: :location, on: :name, complete_value: true, rename: :location
-  scoped_search on: :change, aliases: %i[changed]
-  scoped_search on: :nochange, aliases: %i[unchanged]
-  scoped_search on: :failure, aliases: %i[failed]
+  scoped_search on: :change, aliases: %i[changed changes]
+  scoped_search on: :nochange, aliases: %i[unchanged nochanges]
+  scoped_search on: :failure, aliases: %i[failed failures]
   scoped_search on: :reported_at, complete_value: true, default_order: :desc, rename: :reported, only_explicit: true, aliases: %i[last_report reported_at]
   scoped_search on: :format, complete_value: { plain: 0, puppet: 1, ansible: 2 }
   # This is to simulate has_many :report_keywords relation for scoped_search library to work
