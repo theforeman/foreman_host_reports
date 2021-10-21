@@ -13,3 +13,5 @@ export const HOST_REPORT_REQUEST_KEY = 'HOST_REPORT';
 export const HOST_REPORTS_API_REQUEST_KEY = 'HOST_REPORTS_API';
 
 export const HOST_REPORT_DELETE_MODAL_ID = 'hostReportDeleteModal';
+
+export const RAW_MSG_MODAL_ID = 'rawMsgModal';
