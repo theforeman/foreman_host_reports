@@ -12,6 +12,7 @@ AllCops:
   TargetRailsVersion: 6.0
   Exclude:
     - 'node_modules/**/*'
+    - 'db/seeds.d/*.rb'
 
 Layout/ArgumentAlignment:
   EnforcedStyle: with_fixed_indentation

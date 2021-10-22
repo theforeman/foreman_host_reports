@@ -11,7 +11,7 @@ module Api
       before_action :find_resource, only: %i[destroy]
       before_action :resolve_ids, only: %i[create]
 
-      add_smart_proxy_filters :create, features: proc { HostReport.authorized_smart_proxy_features }
+      add_smart_proxy_filters :create, features: ['Reports']
 
       api :GET, '/host_reports/', N_('List host reports')
       param_group :search_and_pagination, ::Api::V2::BaseController

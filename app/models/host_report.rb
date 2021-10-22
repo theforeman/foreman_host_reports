@@ -45,18 +45,6 @@ class HostReport < ApplicationRecord
     ReportKeyword.where(id: report_keyword_ids)
   end
 
-  def self.authorized_smart_proxy_features
-    @authorized_smart_proxy_features ||= %w[Puppet Ansible]
-  end
-
-  def self.register_smart_proxy_feature(feature)
-    @authorized_smart_proxy_features = (authorized_smart_proxy_features + [feature]).uniq
-  end
-
-  def self.unregister_smart_proxy_feature(feature)
-    @authorized_smart_proxy_features -= [feature]
-  end
-
   def self.search_by_keyword(_key, operator, value)
     conditions = sanitize_sql_for_conditions(["report_keywords.name #{operator} ?", value_to_sql(operator, value)])
     keyword_ids = ReportKeyword.where(conditions).distinct.pluck(:id)

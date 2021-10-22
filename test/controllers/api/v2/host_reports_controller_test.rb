@@ -1,6 +1,15 @@
 require 'test_plugin_helper'
 
 class Api::V2::HostReportsControllerTest < ActionController::TestCase
+  setup do
+    @proxy = FactoryBot.create(:smart_proxy,
+      url: "http://reports.foreman.example.com",
+      features: [FactoryBot.create(:feature, name: 'Reports')])
+    Resolv.any_instance.stubs(:getnames).returns([URI.parse(@proxy.url).host])
+    SmartProxy.any_instance.stubs(:with_features).returns([@proxy])
+    ProxyAPI::V2::Features.any_instance.stubs(:features).returns({ "reports" => { "state" => "running" } })
+  end
+
   context 'when user does not have permission to view hosts' do
     let :host_report do
       as_admin { FactoryBot.create(:host_report) }
@@ -121,18 +130,13 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       Setting[:restrict_registered_smart_proxies] = true
       Setting[:require_ssl_smart_proxies] = false
 
-      stub_smart_proxy_v2_features
-      proxy = smart_proxies(:puppetmaster)
-      as_admin { proxy.update_attribute(:url, 'http://configreports.foreman') }
-      proxy_host = URI.parse(proxy.url).host
-      Resolv.any_instance.stubs(:getnames).returns([proxy_host])
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
           applied: 5, failed: 1, pending: 1, other: 0
         },
       }
-      assert_equal proxy, @controller.detected_proxy
+      assert_equal @proxy, @controller.detected_proxy
       assert_response :created
     end
 
@@ -155,7 +159,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       Setting[:require_ssl_smart_proxies] = true
 
       @request.env['HTTPS'] = 'on'
-      @request.env['SSL_CLIENT_S_DN'] = 'CN=else.where'
+      @request.env['SSL_CLIENT_S_DN'] = 'CN=reports.foreman.example.com'
       @request.env['SSL_CLIENT_VERIFY'] = 'SUCCESS'
       post :create, params: {
         host_report: {
@@ -219,7 +223,6 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       Setting[:require_ssl_smart_proxies] = true
       SETTINGS[:require_ssl] = false
 
-      Resolv.any_instance.stubs(:getnames).returns(['else.where'])
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
