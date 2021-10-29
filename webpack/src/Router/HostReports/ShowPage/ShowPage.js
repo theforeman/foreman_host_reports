@@ -1,10 +1,17 @@
 import React from 'react';
 import JSONTree from 'react-json-tree';
 import PropTypes from 'prop-types';
-import { Button, Grid, GridItem } from '@patternfly/react-core';
+import {
+  Button,
+  Grid,
+  GridItem,
+  Toolbar,
+  ToolbarItem,
+  ToolbarContent,
+} from '@patternfly/react-core';
 
 import PageLayout from 'foremanReact/routes/common/PageLayout/PageLayout';
-import { translate as __ } from 'foremanReact/common/I18n';
+import { sprintf, translate as __ } from 'foremanReact/common/I18n';
 import { foremanUrl } from 'foremanReact/common/helpers';
 import { useForemanModal } from 'foremanReact/components/ForemanModal/ForemanModalHooks';
 
@@ -28,6 +35,7 @@ const HostReportsShowPage = ({
   isLoading,
   fetchAndPush,
 }) => {
+  const reportedAtLocal = new Date(reportedAt);
   const {
     setModalOpen: setDeleteModalOpen,
     setModalClosed: setDeleteModalClosed,
@@ -77,7 +85,6 @@ const HostReportsShowPage = ({
   const meta = {};
   switch (format) {
     case 'puppet':
-      meta.environment = body.environment;
       meta.logs = body.logs;
       break;
     case 'ansible':
@@ -124,11 +131,30 @@ const HostReportsShowPage = ({
         ) : (
           <Grid hasGutter>
             <GridItem>
-              <ReportLogsFilter
-                format={format}
-                reportedAt={reportedAt}
-                meta={meta}
-              />
+              <Toolbar id="meta-toolbar">
+                <ToolbarContent>
+                  <ToolbarItem>
+                    {sprintf(
+                      __('Reported at %s'),
+                      reportedAtLocal.toLocaleString()
+                    )}
+                  </ToolbarItem>
+                  {format === 'puppet' ? (
+                    <>
+                      <ToolbarItem variant="separator" />
+                      <ToolbarItem>
+                        {sprintf(
+                          __('Puppet Environment: %s'),
+                          body.environment
+                        )}
+                      </ToolbarItem>
+                    </>
+                  ) : null}
+                </ToolbarContent>
+              </Toolbar>
+            </GridItem>
+            <GridItem>
+              <ReportLogsFilter format={format} meta={meta} />
             </GridItem>
             {format === 'puppet' ? (
               <GridItem>
