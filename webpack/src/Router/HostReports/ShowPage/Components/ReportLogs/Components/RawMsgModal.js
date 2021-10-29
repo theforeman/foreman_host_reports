@@ -17,7 +17,7 @@ const RawMsgModal = ({ body }) => {
   return (
     <ForemanModal
       id={RAW_MSG_MODAL_ID}
-      title={__('Raw logs')}
+      title={__('Raw data')}
       backdrop="static"
       enforceFocus
     >

@@ -2,13 +2,24 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { sprintf, translate as __ } from 'foremanReact/common/I18n';
+import {
+  TableComposable,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+} from '@patternfly/react-table';
+
+import { translate as __ } from 'foremanReact/common/I18n';
 import * as diffModalActions from 'foremanReact/components/ConfigReports/DiffModal/DiffModalActions';
 import DiffModal from 'foremanReact/components/ConfigReports/DiffModal';
 
+import EmptyLogsRow from './Components/EmptyLogsRow';
+
 import { msgLevelClasses } from './helpers';
 
-const PuppetLogs = ({ logs, environment }) => {
+const PuppetLogs = ({ logs, onClear }) => {
   const dispatch = useDispatch();
   const showDiff = (e, diff, title) => {
     e.preventDefault();
@@ -18,31 +29,23 @@ const PuppetLogs = ({ logs, environment }) => {
   return (
     <>
       <DiffModal />
-      {environment ? (
-        <p className="ra">
-          {sprintf(__('Puppet Environment: %s'), environment)}
-        </p>
-      ) : null}
-      <table
-        id="report_log"
-        className="table table-bordered table-striped table-hover"
-      >
-        <thead>
-          <tr>
-            <th className="col col-md"> {__('Level')} </th>
-            <th className="col col-md-3"> {__('Resource')} </th>
-            <th className="col col-md-9"> {__('Message')} </th>
-          </tr>
-        </thead>
-        <tbody>
+      <TableComposable id="report_log" variant="compact">
+        <Thead noWrap>
+          <Tr>
+            <Th className="col col-md"> {__('Level')} </Th>
+            <Th className="col col-md-3"> {__('Resource')} </Th>
+            <Th className="col col-md-9"> {__('Message')} </Th>
+          </Tr>
+        </Thead>
+        <Tbody>
           {logs.map((log, i) => (
-            <tr key={`tr-${i + 1}`}>
-              <td>
+            <Tr key={`tr-${i + 1}`}>
+              <Td>
                 <span className={msgLevelClasses(log[0])}>{log[0]}</span>
-              </td>
-              <td className="break-me">{log[1]}</td>
+              </Td>
+              <Td className="break-me">{log[1]}</Td>
               {log[2].startsWith('\n---') ? (
-                <td className="break-me">
+                <Td className="break-me">
                   <a
                     onClick={e =>
                       showDiff(e, log[2], /File\[(.*?)\]/.exec(log[1])[1])
@@ -50,30 +53,28 @@ const PuppetLogs = ({ logs, environment }) => {
                   >
                     {__('Show Diff')}
                   </a>
-                </td>
+                </Td>
               ) : (
-                <td className="break-me">{log[2]}</td>
+                <Td className="break-me">{log[2]}</Td>
               )}
-            </tr>
+            </Tr>
           ))}
           {logs.length === 0 ? (
-            <tr key="tr-0">
-              <td colSpan="3">{__('Nothing to show')}</td>
-            </tr>
+            <Tr key="tr-0">
+              <Td colSpan={3}>
+                <EmptyLogsRow onClear={onClear} />
+              </Td>
+            </Tr>
           ) : null}
-        </tbody>
-      </table>
+        </Tbody>
+      </TableComposable>
     </>
   );
 };
 
 PuppetLogs.propTypes = {
   logs: PropTypes.array.isRequired,
-  environment: PropTypes.string,
-};
-
-PuppetLogs.defaultProps = {
-  environment: null,
+  onClear: PropTypes.func.isRequired,
 };
 
 export default PuppetLogs;
