@@ -23,7 +23,7 @@ module Api
         @host_reports = resource_scope_for_index(options)
       end
 
-      api :GET, '/host_report/:id', N_('Show host report details')
+      api :GET, '/host_reports/:id', N_('Show host report details')
       param :id, :identifier, required: true
       def show
         @host_report = resource_scope.find(params[:id])
@@ -44,7 +44,7 @@ module Api
         end
       end
 
-      api :POST, '/host_report/', N_('Create a host report')
+      api :POST, '/host_reports/', N_('Create a host report')
       param_group :host_report, as: :create
 
       def create
