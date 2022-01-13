@@ -4,10 +4,9 @@ import StatusCell from '../StatusCell';
 
 const statusFormatter = () => (_, { rowData }) => {
   const statuses = {
-    applied: rowData.applied,
-    failed: rowData.failed,
-    pending: rowData.pending,
-    other: rowData.other,
+    change: rowData.change,
+    nochange: rowData.nochange,
+    failure: rowData.failure,
   };
   return <StatusCell statuses={statuses} />;
 };
