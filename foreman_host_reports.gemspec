@@ -16,5 +16,7 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.5.0'
 
-  s.add_development_dependency 'rdoc'
+  # Pin rdoc, which pulls in psych 4.0 since 6.4.0, but
+  # Rails 6.0 does not work with psych 4.0 (https://github.com/theforeman/foreman/pull/9012)
+  s.add_development_dependency 'rdoc', '< 6.4.0'
 end
