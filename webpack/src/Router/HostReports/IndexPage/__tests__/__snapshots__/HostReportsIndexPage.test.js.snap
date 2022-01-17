@@ -45,14 +45,13 @@ exports[`HostReportsIndexPage redering render with minimal props 1`] = `
     results={
       Array [
         Object {
-          "applied": 0,
-          "failed": 0,
+          "change": 0,
+          "failure": 0,
           "format": "plain",
           "hostId": "1",
           "hostName": "foreman.example.com",
           "id": "1",
-          "other": 0,
-          "pending": 0,
+          "nochange": 0,
           "proxyId": "1",
           "proxyName": "foreman.example.com",
           "reportedAt": "2021-01-19T12:34:02.841645028Z",

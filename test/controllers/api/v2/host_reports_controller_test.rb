@@ -47,7 +47,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          applied: 5, failed: 1, pending: 1, other: 0
+          change: 1, nochange: 2, failure: 3
         },
       }, session: set_session_user
       assert_response :success
@@ -65,15 +65,14 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
           keywords: %w[HasError HasFailedResource],
-          applied: 5, failed: 1, pending: 1, other: 6
+          change: 1, nochange: 2, failure: 3
         },
       }, session: set_session_user
       report = ActiveSupport::JSON.decode(@response.body)
       assert_response :created
-      assert_equal 5, report['applied']
-      assert_equal 1, report['failed']
-      assert_equal 1, report['pending']
-      assert_equal 6, report['other']
+      assert_equal 1, report['change']
+      assert_equal 2, report['nochange']
+      assert_equal 3, report['failure']
     end
 
     test 'assign keywords' do
@@ -82,7 +81,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
           keywords: %w[HasError HasFailedResource],
-          applied: 5, failed: 1, pending: 1, other: 0
+          change: 1, nochange: 2, failure: 3
         },
       }, session: set_session_user
       report = ActiveSupport::JSON.decode(@response.body)
@@ -97,7 +96,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
           host_report: {
             host: host.name, body: report_body, reported_at: Time.current,
             keywords: %w[HasError HasFailedResource],
-            applied: 5, failed: 1, pending: 1, other: 0
+            change: 1, nochange: 2, failure: 3
           },
         }, session: set_session_user
 
@@ -105,7 +104,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
           host_report: {
             host: host.name, body: report_body, reported_at: Time.current,
             keywords: %w[HasError HasFailedResource],
-            applied: 5, failed: 1, pending: 1, other: 0
+            change: 1, nochange: 2, failure: 3
           },
         }, session: set_session_user
       end
@@ -119,44 +118,15 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          applied: 5, failed: 1, pending: 1, other: 0
+          change: 1, nochange: 2, failure: 3
         },
       }
       assert_nil @controller.detected_proxy
       assert_response :created
     end
 
-    test 'hosts with a registered smart proxy on should create a report successfully' do
-      Setting[:restrict_registered_smart_proxies] = true
-      Setting[:require_ssl_smart_proxies] = false
-
-      post :create, params: {
-        host_report: {
-          host: host.name, body: report_body, reported_at: Time.current,
-          applied: 5, failed: 1, pending: 1, other: 0
-        },
-      }
-      assert_equal @proxy, @controller.detected_proxy
-      assert_response :created
-    end
-
-    test 'hosts without a registered smart proxy on should not be able to create a report' do
-      Setting[:restrict_registered_smart_proxies] = true
-      Setting[:require_ssl_smart_proxies] = false
-
-      Resolv.any_instance.stubs(:getnames).returns(['another.host'])
-      post :create, params: {
-        host_report: {
-          host: host.name, body: report_body, reported_at: Time.current,
-          applied: 5, failed: 1, pending: 1, other: 0
-        },
-      }
-      assert_response :forbidden
-    end
-
     test 'hosts with a registered smart proxy and SSL cert should create a report successfully' do
       Setting[:restrict_registered_smart_proxies] = true
-      Setting[:require_ssl_smart_proxies] = true
 
       @request.env['HTTPS'] = 'on'
       @request.env['SSL_CLIENT_S_DN'] = 'CN=reports.foreman.example.com'
@@ -164,7 +134,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          applied: 5, failed: 1, pending: 1, other: 0
+          change: 1, nochange: 2, failure: 3
         },
       }
       assert_response :created
@@ -172,7 +142,6 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
 
     test 'hosts without a registered smart proxy but with an SSL cert should not be able to create a report' do
       Setting[:restrict_registered_smart_proxies] = true
-      Setting[:require_ssl_smart_proxies] = true
 
       @request.env['HTTPS'] = 'on'
       @request.env['SSL_CLIENT_S_DN'] = 'CN=another.host'
@@ -180,7 +149,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          applied: 5, failed: 1, pending: 1, other: 0
+          change: 1, nochange: 2, failure: 3
         },
       }
       assert_response :forbidden
@@ -188,7 +157,6 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
 
     test 'hosts with an unverified SSL cert should not be able to create a report' do
       Setting[:restrict_registered_smart_proxies] = true
-      Setting[:require_ssl_smart_proxies] = true
 
       @request.env['HTTPS'] = 'on'
       @request.env['SSL_CLIENT_S_DN'] = 'CN=else.where'
@@ -196,37 +164,34 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          applied: 5, failed: 1, pending: 1, other: 0
+          change: 1, nochange: 2, failure: 3
         },
       }
       assert_response :forbidden
     end
 
-    test 'when "require_ssl_smart_proxies" and "require_ssl" are true, HTTP requests should not be able to create a report' do
+    test 'when "require_ssl" is true, HTTP requests should not be able to create a report' do
       Setting[:restrict_registered_smart_proxies] = true
-      Setting[:require_ssl_smart_proxies] = true
       SETTINGS[:require_ssl] = true
 
       Resolv.any_instance.stubs(:getnames).returns(['else.where'])
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          applied: 5, failed: 1, pending: 1, other: 0
+          change: 1, nochange: 2, failure: 3
         },
       }
-      assert_response :forbidden
+      assert_response :redirect
     end
 
-    test 'when "require_ssl_smart_proxies" is true and "require_ssl" is false, HTTP requests should be able to create reports' do
-      # since require_ssl_smart_proxies is only applicable to HTTPS connections, both should be set
+    test 'when "require_ssl" is false, HTTP requests should be able to create reports' do
       Setting[:restrict_registered_smart_proxies] = true
-      Setting[:require_ssl_smart_proxies] = true
       SETTINGS[:require_ssl] = false
 
       post :create, params: {
         host_report: {
           host: host.name, body: report_body, reported_at: Time.current,
-          applied: 5, failed: 1, pending: 1, other: 0
+          change: 1, nochange: 2, failure: 3
         },
       }
       assert_response :created

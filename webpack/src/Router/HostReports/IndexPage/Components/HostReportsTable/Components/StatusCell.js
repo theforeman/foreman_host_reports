@@ -10,7 +10,7 @@ const StatusCell = ({ statuses }) => (
       {Object.keys(statuses).map(status => {
         let style = '';
         switch (status) {
-          case 'failed':
+          case 'failure':
             style = 'label-danger';
             break;
           default:

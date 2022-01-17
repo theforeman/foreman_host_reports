@@ -15,6 +15,4 @@ Gem::Specification.new do |s|
   s.test_files = Dir['test/**/*'] + Dir['webpack/**/__tests__/*.js']
 
   s.required_ruby_version = '>= 2.5.0'
-
-  s.add_development_dependency 'rdoc'
 end
