@@ -18,7 +18,7 @@ module ForemanHostReports
 
     initializer 'foreman_host_reports.register_plugin', :before => :finisher_hook do |_app|
       Foreman::Plugin.register :foreman_host_reports do
-        requires_foreman '>= 3.0.0'
+        requires_foreman '>= 3.2.0'
 
         apipie_documented_controllers ["#{ForemanHostReports::Engine.root}/app/controllers/api/v2/*.rb"]
         # Add Global files for extending foreman-core components and routes

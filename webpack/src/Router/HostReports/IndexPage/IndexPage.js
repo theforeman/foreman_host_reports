@@ -56,7 +56,6 @@ const HostReportsIndexPage = ({
         sort={sort}
         toDelete={toDelete}
         setToDelete={setToDelete}
-        reloadWithSearch={reloadWithSearch}
         hostId={hostId}
       />
     </PageLayout>

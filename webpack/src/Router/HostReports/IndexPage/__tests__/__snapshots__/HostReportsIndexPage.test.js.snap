@@ -41,7 +41,6 @@ exports[`HostReportsIndexPage redering render with minimal props 1`] = `
         "perPage": 20,
       }
     }
-    reloadWithSearch={[MockFunction]}
     results={
       Array [
         Object {

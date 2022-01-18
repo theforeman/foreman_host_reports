@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Table } from 'foremanReact/components/common/table';
-import Pagination from 'foremanReact/components/Pagination/PaginationWrapper';
+import Pagination from 'foremanReact/components/Pagination';
 import DefaultEmptyState from 'foremanReact/components/common/EmptyState';
 import { translate as __ } from 'foremanReact/common/I18n';
 
@@ -18,7 +18,6 @@ const HostReportsTable = ({
   pagination,
   toDelete,
   onDeleteClick,
-  reloadWithSearch,
   hostId,
 }) => {
   const onDeleteSuccess = () => {
@@ -54,13 +53,7 @@ const HostReportsTable = ({
     <React.Fragment>
       <HostReportDeleteModal toDelete={toDelete} onSuccess={onDeleteSuccess} />
       {body}
-      <Pagination
-        viewType="list"
-        itemCount={itemCount}
-        pagination={pagination}
-        onChange={fetchAndPush}
-        dropdownButtonId="host-reports-page-pagination-dropdown"
-      />
+      <Pagination itemCount={itemCount} onChange={fetchAndPush} />
     </React.Fragment>
   );
 };
@@ -73,7 +66,6 @@ HostReportsTable.propTypes = {
   sort: PropTypes.object,
   pagination: PropTypes.object.isRequired,
   toDelete: PropTypes.object.isRequired,
-  reloadWithSearch: PropTypes.func.isRequired,
   hostId: PropTypes.string,
 };
 
