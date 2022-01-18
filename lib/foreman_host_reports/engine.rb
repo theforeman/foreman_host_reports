@@ -36,10 +36,10 @@ module ForemanHostReports
 
         # add menu entry
         menu :top_menu, :host_reports, url: '/host_reports',
-                                       url_hash: { controller: :host_reports, action: :index },
-                                       caption: N_('Host Reports'),
-                                       parent: :monitor_menu,
-                                       before: :reports
+          url_hash: { controller: :host_reports, action: :index },
+          caption: N_('Host Reports'),
+          parent: :monitor_menu,
+          before: :reports
       end
     end
 
