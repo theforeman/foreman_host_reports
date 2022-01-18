@@ -11,7 +11,7 @@ import {
 
 export const initializeHostReports = () => dispatch => {
   const params = getParams();
-  dispatch(fetchHostReports(params));
+  dispatch(fetchHostReports({ per_page: params.perPage, ...params }));
   if (!history.action === 'POP') {
     history.replace({
       pathname: HOST_REPORTS_PATH,
@@ -21,7 +21,8 @@ export const initializeHostReports = () => dispatch => {
 };
 
 export const fetchHostReports = (
-  { page, perPage, searchQuery, sort },
+  /* eslint-disable-next-line camelcase */
+  { page, per_page, searchQuery, sort },
   url = HOST_REPORTS_API_PATH
 ) => async dispatch => {
   const sortString =
@@ -33,7 +34,7 @@ export const fetchHostReports = (
       url,
       params: {
         page,
-        per_page: perPage,
+        per_page,
         search: searchQuery,
         order: sortString,
       },
@@ -46,7 +47,7 @@ export const fetchAndPush = (params = {}) => (dispatch, getState) => {
   dispatch(fetchHostReports(query));
   history.push({
     pathname: HOST_REPORTS_PATH,
-    search: stringifyParams(query),
+    search: stringifyParams({ perPage: query.per_page, ...query }),
   });
 };
 
