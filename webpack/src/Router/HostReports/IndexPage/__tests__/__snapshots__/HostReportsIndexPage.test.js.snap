@@ -11,7 +11,7 @@ exports[`HostReportsIndexPage redering render with minimal props 1`] = `
       "autocomplete": Object {
         "id": "searchBar",
         "searchQuery": "",
-        "url": "host_reports/auto_complete_search",
+        "url": "/host_reports/auto_complete_search",
         "useKeyShortcuts": true,
       },
       "bookmarks": Object {

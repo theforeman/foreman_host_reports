@@ -55,4 +55,16 @@ class HostReport < ApplicationRecord
       conditions: sanitize_sql_for_conditions(["host_reports.report_keyword_ids @> ?", "{#{keyword_ids.join(',')}}"]),
     }
   end
+
+  def status
+    if failure&.positive?
+      :failure
+    elsif change&.positive?
+      :change
+    elsif nochange&.positive?
+      :nochange
+    else
+      :empty
+    end
+  end
 end
