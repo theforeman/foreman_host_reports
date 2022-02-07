@@ -39,6 +39,9 @@ Rails/SkipsModelValidations:
 Rails/HasAndBelongsToMany:
   Enabled: false
 
+Rails/HelperInstanceVariable:
+  Enabled: false
+
 Metrics/BlockLength:
   Enabled: false
 

@@ -53,6 +53,7 @@ module ForemanHostReports
       Host::Managed.include ForemanHostReports::HostExtensions
       SmartProxy.include ForemanHostReports::HostExtensions
       ::HostsController.include ForemanHostReports::Controller::HostsControllerExtensions
+      ::HostsHelper.include ForemanHostReports::HostsHelperExtensions
     rescue => e
       Rails.logger.warn "ForemanHostReports: skipping engine hook (#{e})"
     end
