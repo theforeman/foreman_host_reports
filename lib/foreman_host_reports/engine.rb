@@ -40,6 +40,10 @@ module ForemanHostReports
           caption: N_('Host Reports'),
           parent: :monitor_menu,
           before: :reports
+
+        add_histogram_telemetry(:host_report_create_keywords, 'Time spent processing keywords (ms)')
+        add_histogram_telemetry(:host_report_create_refresh, 'Time spent processing status refresh (ms)')
+        add_histogram_telemetry(:host_report_create, 'Time spent saving record (ms)')
       end
     end
 
@@ -48,6 +52,7 @@ module ForemanHostReports
     config.to_prepare do
       Host::Managed.include ForemanHostReports::HostExtensions
       SmartProxy.include ForemanHostReports::HostExtensions
+      ::HostsController.include ForemanHostReports::Controller::HostsControllerExtensions
     rescue => e
       Rails.logger.warn "ForemanHostReports: skipping engine hook (#{e})"
     end

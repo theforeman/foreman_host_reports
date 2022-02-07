@@ -1,20 +1,22 @@
 require 'test_plugin_helper'
 
 class Api::V2::HostReportsControllerTest < ActionController::TestCase
+  let :host_report do
+    as_admin do
+      FactoryBot.create(:host_report)
+    end
+  end
+  let :report_body do
+    read_report('foreman-web.json', URI.parse(host_report.proxy.url).host)
+  end
   setup do
-    @proxy = FactoryBot.create(:smart_proxy,
-      url: "http://reports.foreman.example.com",
-      features: [FactoryBot.create(:feature, name: 'Reports')])
-    Resolv.any_instance.stubs(:getnames).returns([URI.parse(@proxy.url).host])
-    SmartProxy.any_instance.stubs(:with_features).returns([@proxy])
+    Resolv.any_instance.stubs(:getnames).returns([URI.parse(host_report.proxy.url).host])
+    SmartProxy.any_instance.stubs(:with_features).returns([host_report.proxy])
+    SmartProxy.any_instance.stubs(:find_by).returns([host_report.proxy])
     ProxyAPI::V2::Features.any_instance.stubs(:features).returns({ "reports" => { "state" => "running" } })
   end
 
   context 'when user does not have permission to view hosts' do
-    let :host_report do
-      as_admin { FactoryBot.create(:host_report) }
-    end
-
     setup { setup_user('view', 'host_reports') }
 
     test 'cannot view any reports' do
@@ -32,10 +34,6 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
   describe 'Non Admin User' do
     def setup
       User.current = users(:one) # use an unprivileged user, not apiadmin
-    end
-
-    def report_body
-      @report_body ||= read_report('foreman-web.json')
     end
 
     let :host do
@@ -129,7 +127,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       Setting[:restrict_registered_smart_proxies] = true
 
       @request.env['HTTPS'] = 'on'
-      @request.env['SSL_CLIENT_S_DN'] = 'CN=reports.foreman.example.com'
+      @request.env['SSL_CLIENT_S_DN'] = "CN=#{URI.parse(host_report.proxy.url).host}"
       @request.env['SSL_CLIENT_VERIFY'] = 'SUCCESS'
       post :create, params: {
         host_report: {
@@ -144,7 +142,7 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       Setting[:restrict_registered_smart_proxies] = true
 
       @request.env['HTTPS'] = 'on'
-      @request.env['SSL_CLIENT_S_DN'] = 'CN=another.host'
+      @request.env['SSL_CLIENT_S_DN'] = "CN=else.where"
       @request.env['SSL_CLIENT_VERIFY'] = 'SUCCESS'
       post :create, params: {
         host_report: {

@@ -3,6 +3,7 @@
 module Api
   module V2
     class HostReportsController < V2::BaseController
+      include Foreman::TelemetryHelper
       include Api::Version2
       include Foreman::Controller::CsvResponder
       include Foreman::Controller::SmartProxyAuth
@@ -38,33 +39,51 @@ module Api
           param :nochange, Integer, required: false, desc: N_('Summary count of actions without change (semantics is different for each report type)')
           param :failure, Integer, required: false, desc: N_('Summary count of actions with failure (semantics is different for each report type)')
           param :body, String, required: true, desc: N_('String with JSON formatted body of the report')
-          param :proxy, String, required: false, desc: N_('Hostname of the proxy processed the report')
+          param :proxy, String, required: false, desc: N_('Hostname of the proxy processed the report (will be detected from SSL cert for HTTPS requests)')
           param :keywords, Array, of: String, required: false, desc: N_('A list of keywords to associate with the report for better searching')
         end
       end
 
       api :POST, '/host_reports/', N_('Create a host report')
       param_group :host_report, as: :create
-
       def create
+        result = nil
+        # version is unused at the moment (version = 1)
         params[:host_report].delete(:version)
+        # check existing host and proxy
+        raise("Unknown host: #{@hostname}") unless params[:host_report][:host_id]
+        # fetch the body
         the_body = params[:host_report].delete(:body)
         if the_body && !the_body.is_a?(String)
           logger.warn "Report body not as a string, serializing JSON"
           the_body = JSON.pretty_generate(the_body)
         end
+        # process keywords
         keywords = params[:host_report].delete(:keywords)
-        @host_report = HostReport.new(host_report_params.merge(body: the_body))
-        if keywords.present?
-          keywords_to_insert = keywords.each_with_object([]) do |n, ks|
-            ks << { name: n }
+        report_keyword_ids = []
+        telemetry_duration_histogram(:host_report_create_keywords, :ms) do
+          if keywords.present?
+            keywords_to_insert = keywords.each_with_object([]) do |n, ks|
+              ks << { name: n }
+            end
+            ReportKeyword.upsert_all(keywords_to_insert, unique_by: :name)
+            report_keyword_ids = ReportKeyword.where(name: keywords).distinct.pluck(:id)
           end
-          ReportKeyword.upsert_all(keywords_to_insert, unique_by: :name)
-          @host_report.report_keyword_ids = ReportKeyword.where(name: keywords).distinct.pluck(:id)
         end
-        result = @host_report.save
-        @host_report.body = nil
+        # create new record
+        @host_report = HostReport.new(host_report_params.merge(body: the_body, report_keyword_ids: report_keyword_ids))
+        telemetry_duration_histogram(:host_report_create, :ms) do
+          result = @host_report.save
+        end
+        # refresh status and last_report flag
+        telemetry_duration_histogram(:host_report_create_refresh, :ms) do
+          time = Time.parse(params[:host_report][:reported_at]).utc
+          @host.update_attribute(:last_report, time) if @host.last_report.nil? || @host.last_report.utc < time
+          @host.refresh_statuses([HostStatus::HostReportStatus])
+        end
         process_response result
+      rescue StandardError => e
+        render_exception(e, :status => :unprocessable_entity)
       end
 
       api :DELETE, '/host_reports/:id', N_('Delete a host report')
@@ -85,10 +104,11 @@ module Api
       private
 
       def resolve_ids
-        hostname = params[:host_report].delete(:host)
-        proxyname = params[:host_report].delete(:proxy)
-        params[:host_report][:host_id] ||= Host.find_by(name: hostname)&.id
-        params[:host_report][:proxy_id] ||= SmartProxy.unscoped.find_by(name: proxyname)&.id
+        @hostname = params[:host_report].delete(:host)
+        @proxyname = params[:host_report].delete(:proxy)
+        @host = Host.find_by(name: @hostname)
+        params[:host_report][:host_id] ||= @host&.id
+        params[:host_report][:proxy_id] = detected_proxy&.id # provided by SmartProxyAuth concern
       end
 
       def resource_scope(options = {})

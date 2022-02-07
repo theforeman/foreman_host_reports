@@ -24,7 +24,7 @@ Layout/EmptyLineAfterGuardClause:
 Layout/LineLength:
   Enabled: false
 
-Metrics/MethodLength:
+Metrics:
   Enabled: false
 
 Rails:

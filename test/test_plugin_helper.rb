@@ -5,7 +5,9 @@ require 'test_helper'
 FactoryBot.definition_file_paths << File.join(File.dirname(__FILE__), 'factories')
 FactoryBot.reload
 
-def read_report(file)
+def read_report(file, override_proxy = "localhost")
   json = File.expand_path(File.join('..', 'snapshots', file), __FILE__)
-  File.read(json)
+  json = JSON.parse(File.read(json))
+  json["proxy"] = override_proxy
+  json.to_s
 end
