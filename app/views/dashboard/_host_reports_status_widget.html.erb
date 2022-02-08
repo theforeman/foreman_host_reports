@@ -1,0 +1,11 @@
+<h4 class="header">
+  <% if (format = settings[:format]) %>
+    <%= _('%s Host Reports') % settings[:format] %>
+  <% else %>
+    <%= _('All Host Reports %s') % disabled_hosts%>
+  <% end %>
+</h4>
+<ul>
+  <%= render "dashboard/host_reports_status_links", format: format.downcase %>
+  <h4 class="total"><%= _("Total Hosts: %s") % Host.all.count %></h4>
+</ul>

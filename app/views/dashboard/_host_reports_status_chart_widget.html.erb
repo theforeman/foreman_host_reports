@@ -1,0 +1,13 @@
+<%
+  format = settings[:format]
+%>
+<h4 class="header">
+  <% if format %>
+    <%= _('%s Host Reports Chart') % format %>
+  <% else %>
+    <%= _('All Host Reports Chart') %>
+  <% end %>
+</h4>
+<div class="host-configuration-chart">
+  <%= react_component('DonutChart', host_reports_get_overview(format: format.downcase))%>
+</div>

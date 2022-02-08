@@ -17,6 +17,18 @@ FactoryBot.define do
     format { 'ansible' }
   end
 
+  trait :with_failure do
+    failure { 1 }
+  end
+
+  trait :with_change do
+    change { 1 }
+  end
+
+  trait :with_nochange do
+    nochange { 1 }
+  end
+
   trait :with_keyword do
     transient do
       name { 'HasError' }
