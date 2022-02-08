@@ -1,0 +1,29 @@
+<h4 class="header">
+  <%= _("Latest Host Reports") %>
+</h4>
+
+<% if latest_reports? %>
+  <table class="<%= table_css_classes 'table-fixed reports-table' %>">
+    <thead>
+      <tr>
+        <%= string =  "<th>#{_('Host')}</th>"
+            string += host_reports_translated_header(s_('Changed'), _('Changed'))
+            string += host_reports_translated_header(s_('Unchanged'), _('Unchanged'))
+            string += host_reports_translated_header(s_('Failed'), _('Failed'))
+            string.html_safe %>
+      </tr>
+    </thead>
+    <tbody>
+      <% latest_reports.each do |report| %>
+        <tr>
+          <td class='ellipsis'><%= link_to report.host, host_reports_host_path(report.host.id) %></td>
+          <td class="ca"><%= report_event_column(report.change, "label-info") %></td>
+          <td class="ca"><%= report_event_column(report.nochange, "label-warning") %></td>
+          <td class="ca"><%= report_event_column(report.failure, "label-danger") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="ca"><%= _("No interesting reports received in the last week") %></p>
+<% end %>

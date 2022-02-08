@@ -44,6 +44,19 @@ module ForemanHostReports
         add_histogram_telemetry(:host_report_create_keywords, 'Time spent processing keywords (ms)')
         add_histogram_telemetry(:host_report_create_refresh, 'Time spent processing status refresh (ms)')
         add_histogram_telemetry(:host_report_create, 'Time spent saving record (ms)')
+
+        # add dashboard widget
+        in_to_prepare do
+          HostReport.formats.each do |format, _|
+            if format != 'plain' && (format = format.capitalize)
+              widget 'host_reports_status_chart_widget', :name => N_(" %s Host Reports Chart ") % format, :sizex => 4, :sizey => 1, settings: { format: format }
+              widget 'host_reports_status_widget', :name => N_(" %s Host Reports ") % format, :sizex => 4, :sizey => 1, settings: { format: format }
+            end
+          end
+
+          ::DashboardController.helper ForemanHostReports::ReportsDashboardHelper
+          widget 'host_reports_widget', :name => N_('Host Reports'), :sizex => 6, :sizey => 1
+        end
       end
     end
 
