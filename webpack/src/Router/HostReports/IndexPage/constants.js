@@ -1,8 +1,9 @@
 import { getControllerSearchProps } from 'foremanReact/constants';
 
-export const HOST_REPORTS_SEARCH_PROPS = getControllerSearchProps(
-  'host_reports'
-);
+export const HOST_REPORTS_SEARCH_PROPS = {
+  ...getControllerSearchProps('/host_reports'),
+  controller: 'host_reports',
+};
 
 export const HOST_REPORTS_PATH = '/host_reports';
 export const HOST_REPORTS_API_PATH =
