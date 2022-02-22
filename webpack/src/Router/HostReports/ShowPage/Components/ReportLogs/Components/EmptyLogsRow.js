@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
+import { SearchIcon } from '@patternfly/react-icons';
 
 import DefaultEmptyState from 'foremanReact/components/common/EmptyState';
 import { translate as __ } from 'foremanReact/common/I18n';
