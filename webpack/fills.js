@@ -9,6 +9,12 @@ const fills = [
     component: props => <ReportsTab {...props} />,
     weight: 450,
   },
+  {
+    slot: '[puppet]-reports',
+    name: 'Reports',
+    component: props => <ReportsTab format="puppet" {...props} />,
+    weight: 450,
+  },
 ];
 
 export const registerFills = () => {
