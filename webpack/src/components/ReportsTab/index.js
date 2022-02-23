@@ -16,7 +16,7 @@ import { useForemanSettings } from 'foremanReact/Root/Context/ForemanContext';
 import { HOST_REPORTS_SEARCH_PROPS } from '../../Router/HostReports/IndexPage/constants';
 import ReportsTable from './ReportsTable';
 
-const ReportsTab = ({ hostName }) => {
+const ReportsTab = ({ hostName, format }) => {
   const dispatch = useDispatch();
   const history = useHistory();
   const API_KEY = `get-reports-${hostName}`;
@@ -63,12 +63,15 @@ const ReportsTab = ({ hostName }) => {
   const getServerQuery = useCallback(
     search => {
       const serverQuery = [`host = ${hostName}`];
-      if (search) {
-        serverQuery.push(`AND (${search})`);
+      if (format) {
+        serverQuery.push(`format = ${format}`);
       }
-      return serverQuery.join(' ').trim();
+      if (search) {
+        serverQuery.push(`(${search})`);
+      }
+      return serverQuery.join(' AND ');
     },
-    [hostName]
+    [format, hostName]
   );
 
   const getUrlParams = useCallback(() => {
@@ -127,6 +130,11 @@ const ReportsTab = ({ hostName }) => {
 
 ReportsTab.propTypes = {
   hostName: PropTypes.string.isRequired,
+  format: PropTypes.string,
+};
+
+ReportsTab.defaultProps = {
+  format: null,
 };
 
 export default ReportsTab;
