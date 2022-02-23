@@ -53,7 +53,7 @@ export const statusSummaryFormatter = ({ change, nochange, failure }) => {
 export const globalStatusFormatter = ({ status }) => {
   switch (status) {
     case 'failure':
-      return <FailedIcon label={__('Fail')} />;
+      return <FailedIcon label={__('Failed')} />;
     case 'change':
       return <ChangedIcon label={__('Changed')} />;
     case 'nochange':
