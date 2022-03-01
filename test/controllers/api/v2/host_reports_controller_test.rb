@@ -167,33 +167,6 @@ class Api::V2::HostReportsControllerTest < ActionController::TestCase
       }
       assert_response :forbidden
     end
-
-    test 'when "require_ssl" is true, HTTP requests should not be able to create a report' do
-      Setting[:restrict_registered_smart_proxies] = true
-      SETTINGS[:require_ssl] = true
-
-      Resolv.any_instance.stubs(:getnames).returns(['else.where'])
-      post :create, params: {
-        host_report: {
-          host: host.name, body: report_body, reported_at: Time.current,
-          change: 1, nochange: 2, failure: 3
-        },
-      }
-      assert_response :redirect
-    end
-
-    test 'when "require_ssl" is false, HTTP requests should be able to create reports' do
-      Setting[:restrict_registered_smart_proxies] = true
-      SETTINGS[:require_ssl] = false
-
-      post :create, params: {
-        host_report: {
-          host: host.name, body: report_body, reported_at: Time.current,
-          change: 1, nochange: 2, failure: 3
-        },
-      }
-      assert_response :created
-    end
   end
 
   test 'should get index' do
