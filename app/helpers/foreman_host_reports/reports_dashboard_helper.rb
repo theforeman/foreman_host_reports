@@ -26,12 +26,19 @@ module ForemanHostReports
         nochange_hosts: _('No Change'),
         disabled_hosts: _('Disabled alerts'),
       }
-
+      counter = {}
+      total = 0
+      data = state_labels.map do |key, label|
+        counter.store(key, send(key, format))
+        total = counter[key] + total
+        [label, counter[key], host_reports_report_color[key]]
+      end
       {
-        data: state_labels.map { |key, label| [label, send(key, format), host_reports_report_color[key]] },
+        data: data,
         searchUrl: hosts_path(search: '~VAL~'),
+        title: { primary: _("#{(counter[:failure_hosts].fdiv(total) * 100).to_i}%"), secondary: state_labels[:failure_hosts] },
         searchFilters: state_labels.each_with_object({}) do |(key, filter), filters|
-          filters[filter] = send(key, format)
+          filters[filter] = counter[key]
         end,
       }
     end
