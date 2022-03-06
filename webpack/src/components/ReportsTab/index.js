@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -7,7 +7,7 @@ import URI from 'urijs';
 import SearchBar from 'foremanReact/components/SearchBar';
 import Pagination from 'foremanReact/components/Pagination';
 import { get } from 'foremanReact/redux/API';
-import { Grid, GridItem } from '@patternfly/react-core';
+import { Divider, Grid, GridItem } from '@patternfly/react-core';
 import {
   selectAPIStatus,
   selectAPIResponse,
@@ -15,6 +15,7 @@ import {
 import { useForemanSettings } from 'foremanReact/Root/Context/ForemanContext';
 import { HOST_REPORTS_SEARCH_PROPS } from '../../Router/HostReports/IndexPage/constants';
 import ReportsTable from './ReportsTable';
+import StatusToggleGroup from './StatusToggleGroup';
 
 const ReportsTab = ({ hostName, format }) => {
   const dispatch = useDispatch();
@@ -25,6 +26,11 @@ const ReportsTab = ({ hostName, format }) => {
   );
   const { perPage: settingsPerPage = 20 } = useForemanSettings() || {};
   const status = useSelector(state => selectAPIStatus(state, API_KEY));
+  const [filters, setFilters] = useState({
+    failed: false,
+    changed: false,
+    unchanged: false,
+  });
   const fetchReports = useCallback(
     ({ search: searchParam, per_page: perPageParam, page: pageParam } = {}) => {
       const {
@@ -42,13 +48,13 @@ const ReportsTab = ({ hostName, format }) => {
           params: {
             page,
             per_page,
-            search: getServerQuery(search),
+            search: getServerQuery(search, filters),
           },
         })
       );
       updateUrl({ page, per_page, search });
     },
-    [API_KEY, dispatch, getServerQuery, getUrlParams, updateUrl]
+    [API_KEY, dispatch, getServerQuery, getUrlParams, updateUrl, filters]
   );
 
   useEffect(() => {
@@ -61,7 +67,7 @@ const ReportsTab = ({ hostName, format }) => {
   };
 
   const getServerQuery = useCallback(
-    search => {
+    (search, _filters) => {
       const serverQuery = [`host = ${hostName}`];
       if (format) {
         serverQuery.push(`format = ${format}`);
@@ -69,6 +75,13 @@ const ReportsTab = ({ hostName, format }) => {
       if (search) {
         serverQuery.push(`(${search})`);
       }
+
+      Object.keys(_filters).forEach(filter => {
+        if (_filters[filter]) {
+          serverQuery.push(`${filter} > 0`);
+        }
+      });
+
       return serverQuery.join(' AND ');
     },
     [format, hostName]
@@ -97,13 +110,17 @@ const ReportsTab = ({ hostName, format }) => {
 
   return (
     <Grid id="new_host_details_insights_tab" hasGutter>
-      <GridItem span={6}>
+      <GridItem span={5}>
         <SearchBar
           data={HOST_REPORTS_SEARCH_PROPS}
           onSearch={search => fetchReports({ search, page: 1 })}
         />
       </GridItem>
-      <GridItem span={6}>
+      <GridItem span={4}>
+        <StatusToggleGroup setSelected={setFilters} selected={filters} />
+        <Divider isVertical />
+      </GridItem>
+      <GridItem span={3}>
         <Pagination
           variant="top"
           itemCount={itemCount}
