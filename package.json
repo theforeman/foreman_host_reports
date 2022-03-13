@@ -21,20 +21,17 @@
     "url": "http://projects.theforeman.org/projects/foreman_host_reports/issues"
   },
   "peerDependencies": {
-    "@theforeman/vendor": "^8.15.0"
+    "@theforeman/vendor": ">= 0"
   },
   "dependencies": {
     "react-json-tree": "^0.11.0"
   },
   "devDependencies": {
     "@babel/core": "^7.7.0",
-    "@sheerun/mutationobserver-shim": "^0.3.3",
-    "@theforeman/builder": "^8.15.0",
-    "@theforeman/eslint-plugin-foreman": "^8.15.0",
-    "@theforeman/find-foreman": "^8.15.0",
-    "@theforeman/stories": "^8.15.0",
-    "@theforeman/test": "^8.15.0",
-    "@theforeman/vendor-dev": "^8.15.0",
+    "@theforeman/builder": ">= 0",
+    "@theforeman/eslint-plugin-foreman": ">= 0",
+    "@theforeman/stories": ">= 0",
+    "@theforeman/test": ">= 0",
     "babel-eslint": "^10.0.3",
     "eslint": "^6.7.2",
     "prettier": "^1.19.1",
