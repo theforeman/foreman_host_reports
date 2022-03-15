@@ -2,7 +2,7 @@ module HostStatus
   # rubocop:disable Style/GuardClause
   class HostReportStatus < Status
     def last_report
-      self.last_report = host.last_host_report_object_any_format unless @last_report_set
+      self.last_report = host.last_host_report_object unless @last_report_set
       @last_report
     end
 
