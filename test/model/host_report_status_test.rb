@@ -23,6 +23,30 @@ class HostReportStatusTest < ActiveSupport::TestCase
     assert_nil status.last_report
   end
 
+  test "last_host_report_object returns latest report" do
+    assert_equal report, host.last_host_report_object
+  end
+
+  test "empty configuration status host attribute" do
+    assert_equal 0, host.configuration_status
+  end
+
+  test "empty configuration status host attribute label" do
+    assert_equal "Empty", host.configuration_status_label
+  end
+
+  test "empty configuration status host attribute" do
+    report.failure = 5
+    report.save!
+    assert_equal(-1, host.configuration_status)
+  end
+
+  test "empty configuration status host attribute label" do
+    report.failure = 5
+    report.save!
+    assert_equal "Failure(s)", host.configuration_status_label
+  end
+
   describe "host with no reports" do
     let(:host) { FactoryBot.create(:host) }
 
