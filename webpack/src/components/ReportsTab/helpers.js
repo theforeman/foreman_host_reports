@@ -8,19 +8,18 @@ import {
   KebabToggle,
   FlexItem,
   Flex,
-  Tooltip,
 } from '@patternfly/react-core';
 import {
   ExclamationCircleIcon,
   SyncAltIcon,
   CheckCircleIcon,
   BanIcon,
-  TagIcon,
 } from '@patternfly/react-icons';
 import { openConfirmModal } from 'foremanReact/components/ConfirmModal';
 import { APIActions } from 'foremanReact/redux/API';
 import { translate as __ } from 'foremanReact/common/I18n';
 import { reportToShowFormatter } from '../../Router/HostReports/IndexPage/Components/HostReportsTable/Components/Formatters';
+import KeywordsPopover from './KeywordsPopover';
 
 const FailedIcon = ({ label, withMargin = false }) => (
   <span style={withMargin ? { marginRight: '15px' } : {}}>
@@ -67,13 +66,8 @@ export const globalStatusFormatter = ({ status }) => {
   }
 };
 
-export const keywordsFormatter = ({ keywords = [] }) => (
-  <>
-    <Tooltip content={<div>{keywords.join(',\n')}</div>}>
-      <TagIcon color={keywords.length ? '#6a6e73' : '#d2d2d2'} />{' '}
-      {keywords.length}
-    </Tooltip>
-  </>
+export const keywordsFormatter = ({ keywords }, setFilters) => (
+  <KeywordsPopover keywords={keywords} setFilters={setFilters} />
 );
 
 export const ActionFormatter = ({ id, can_delete }, fetchReports) => {

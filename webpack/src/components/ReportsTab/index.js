@@ -16,6 +16,7 @@ import { useForemanSettings } from 'foremanReact/Root/Context/ForemanContext';
 import { HOST_REPORTS_SEARCH_PROPS } from '../../Router/HostReports/IndexPage/constants';
 import ReportsTable from './ReportsTable';
 import StatusToggleGroup from './StatusToggleGroup';
+import SearchBarChips from './SearchBarChips';
 
 const ReportsTab = ({ hostName, format }) => {
   const dispatch = useDispatch();
@@ -78,7 +79,7 @@ const ReportsTab = ({ hostName, format }) => {
 
       Object.keys(_filters).forEach(filter => {
         if (_filters[filter]) {
-          serverQuery.push(`${filter} > 0`);
+          serverQuery.push(_filters[filter]);
         }
       });
 
@@ -115,6 +116,7 @@ const ReportsTab = ({ hostName, format }) => {
           data={HOST_REPORTS_SEARCH_PROPS}
           onSearch={search => fetchReports({ search, page: 1 })}
         />
+        <SearchBarChips filters={filters} setFilters={setFilters} />
       </GridItem>
       <GridItem span={4}>
         <StatusToggleGroup setSelected={setFilters} selected={filters} />
@@ -132,6 +134,7 @@ const ReportsTab = ({ hostName, format }) => {
           reports={reports}
           status={status}
           fetchReports={fetchReports}
+          setFilters={setFilters}
         />
       </GridItem>
       <GridItem>

@@ -9,8 +9,11 @@ import {
 import { translate as __ } from 'foremanReact/common/I18n';
 
 const StatusToggleGroup = ({ setSelected, selected }) => {
-  const onChange = (isSelected, { currentTarget: { id } }) =>
-    setSelected(prev => ({ ...prev, [id]: isSelected }));
+  const onChange = (isSelected, { currentTarget: { id: statusName } }) =>
+    setSelected(prev => ({
+      ...prev,
+      [statusName]: isSelected ? `${statusName} > 0` : false,
+    }));
 
   return (
     <ToggleGroup aria-label="Icon variant toggle group">

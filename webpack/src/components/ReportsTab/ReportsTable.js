@@ -20,7 +20,7 @@ import { STATUS } from 'foremanReact/constants';
 import { translate as __ } from 'foremanReact/common/I18n';
 import { getColumns } from './helpers';
 
-const ReportsTable = ({ reports, status, fetchReports }) => {
+const ReportsTable = ({ reports, status, fetchReports, setFilters }) => {
   const columns = getColumns(fetchReports);
   let tableBody = null;
   let tableHead = null;
@@ -45,7 +45,7 @@ const ReportsTable = ({ reports, status, fetchReports }) => {
             <Tr key={rowIndex}>
               {columns.map(({ title, formatter }, cellIndex) => (
                 <Td key={`${rowIndex}_${cellIndex}`} dataLabel={title}>
-                  {formatter(row)}
+                  {formatter(row, setFilters)}
                 </Td>
               ))}
             </Tr>
@@ -107,6 +107,7 @@ ReportsTable.propTypes = {
   reports: PropTypes.array,
   status: PropTypes.string,
   fetchReports: PropTypes.func.isRequired,
+  setFilters: PropTypes.func.isRequired,
 };
 
 ReportsTable.defaultProps = {
