@@ -42,7 +42,7 @@ namespace :host_reports do
     [change, failure, nochange]
   end
 
-  def summary(origin, metrics, status)
+  def create_summary(origin, metrics, status)
     change, failure, nochange = 0
     case origin
     when "Puppet"
@@ -181,7 +181,7 @@ namespace :host_reports do
         ReportKeyword.upsert_all(keywords_to_insert, unique_by: :name)
         report_keyword_ids = ReportKeyword.where(name: keywords).distinct.pluck(:id)
       end
-      summary = summary(r.origin, r.metrics, r.status)
+      summary = create_summary(r.origin, r.metrics, r.status)
       body = create_body(r.origin&.downcase, r.metrics, r.reported_at, r.status, r.host, report_keyword_ids, summary)
       case r.origin
       when "Puppet"
