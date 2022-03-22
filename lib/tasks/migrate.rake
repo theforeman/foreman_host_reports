@@ -220,11 +220,19 @@ namespace :host_reports do
   This task refreshes all host statuses and global statuses.
   END_DESC
   task :refresh => :environment do
+    # ensure the class is loaded before refresh starts to avoid hash modifycation during loop
+    _ = HostStatus::HostReportStatus
+
     Rails.logger.level = Logger::ERROR
     Foreman::Logging.logger('permissions').level = Logger::ERROR
     Foreman::Logging.logger('audit').level = Logger::ERROR
     User.without_auditing do
       User.as_anonymous_admin do
+        # delete old and new statuses
+        HostStatus::Status.where(type: "HostStatus::ConfigurationStatus").delete_all
+        HostStatus::Status.where(type: "HostStatus::HostReportStatus").delete_all
+
+        # refresh all statuses from scratch
         Host.unscoped.all.find_each do |h|
           h.refresh_statuses
           h.refresh_global_status
