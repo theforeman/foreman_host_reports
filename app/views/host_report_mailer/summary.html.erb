@@ -1,11 +1,12 @@
 <h2 class="headline"><%= _("<b>Foreman</b> %{format} Host Reports Summary").html_safe % {:format => @format} %></h2>
-<h2 style="margin: 5px 0px;"><%= _("Summary from %{time} ago to now") % {:time => distance_of_time_in_words(Time.now - @timerange)} %></h2>
+<h2 style="margin: 5px 0px;"><%= _("Summary from %{time} ago to now") % {:time => distance_of_time_in_words(Time.now - @time)} %></h2>
 <h3><%= _("Summary report from Foreman server at %{foreman_url}") % {:foreman_url => Setting[:foreman_url]} %></h3>
 <div class="dashboard">
-  <%= render :partial => 'dashboard', :locals => {:hosts_sum => @hosts.size, :out_of_sync_sum => @out_of_sync.size, :disabled_sum => @disabled.size} %>
+  <%= render :partial => 'dashboard', :locals => {:change => @total_hosts_with_changes, :failure => @total_hosts_with_failure, :nochange => @total_hosts_with_nochanges} %>
 </div>
 <div class="hosts">
-  <%= render :partial => 'list', :locals => {:state => 'active', :title => _("Hosts with interesting values (changed, failures etc)"), :list => @hosts} %>
-  <%= render :partial => 'list', :locals => {:state => 'nonactive', :title => _("Hosts which do not have recent reports from configuration management"), :list => @out_of_sync} %>
-  <%= render :partial => 'list', :locals => {:state => 'nonactive', :title => _("Hosts which Foreman reporting is disabled"), :list => @disabled} %>
+  <%= render :partial => 'list', :locals => {:state => 'active', :title => _("Hosts with failures"), :list => @failed_hosts} %>
+  <%= render :partial => 'list', :locals => {:state => 'active', :title => _("Hosts with changes"), :list => @changed_hosts} %>
+  <%= render :partial => 'list', :locals => {:state => 'nonactive', :title => _("Out of sync hosts"), :list => @outofsync_hosts} %>
+  <%= render :partial => 'list', :locals => {:state => 'nonactive', :title => _("Hosts which Foreman reporting is disabled"), :list => @disabled_hosts} %>
 </div>

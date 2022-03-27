@@ -56,6 +56,27 @@ class HostReport < ApplicationRecord
     }
   end
 
+  def self.summarise(hosts)
+    list = {}
+    total = 0
+    changed_hosts = []
+    failed_hosts = []
+    hosts.all.find_each do |host|
+      report = host.last_host_report_object
+      unless report.nil?
+        data = { change: report.change, nochange: report.nochange, failure: report.failure }
+        total += report.change + report.nochange + report.failure
+        if report.change.positive?
+          changed_hosts[host.name] = { :metrics => data, :id => host.id }
+        elsif report.failure.positive?
+          failed_hosts[host.name] = { :metrics => data, :id => host.id }
+        end
+        list[host.name] = { :metrics => data, :id => host.id }
+      end
+    end
+    [list, changed_hosts, failed_hosts, total]
+  end
+
   def status
     if failure&.positive?
       :failure

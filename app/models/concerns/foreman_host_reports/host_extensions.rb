@@ -79,16 +79,24 @@ module ForemanHostReports
         prefix + "report_format = #{format} and last_report <= #{interval_query(format)} and status.enabled = true"
       end
 
+      def outofsync_hosts_list(format, prefix = '')
+        Host.search_for(outofsync_hosts_query(format, prefix)).reorder("")
+      end
+
       def outofsync_hosts(format, prefix = '')
-        Host.search_for(outofsync_hosts_query(format, prefix)).reorder("").count
+        outofsync_hosts_list(format,prefix).count
       end
 
       def disabled_hosts_query(format, prefix = '')
         prefix + "report_format = #{format} and status.enabled = false"
       end
 
+      def disabled_hosts_list(format, prefix = '')
+        Host.search_for(disabled_hosts_query(format, prefix)).reorder("")
+      end
+
       def disabled_hosts(format, prefix = '')
-        Host.search_for(disabled_hosts_query(format, prefix)).reorder("").count
+        disabled_hosts_list(format, prefix).count
       end
     end
   end
