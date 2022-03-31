@@ -8,6 +8,7 @@ module ForemanHostReports
     config.autoload_paths += Dir["#{config.root}/app/models/concerns"]
     config.autoload_paths += Dir["#{config.root}/app/overrides"]
     config.autoload_paths += Dir["#{config.root}/lib"]
+    config.autoload_paths += Dir["#{config.root}/app/models/mail_notifications"]
 
     # Add any db migrations
     initializer 'foreman_host_reports.load_app_instance_data' do |app|

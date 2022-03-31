@@ -1,0 +1,12 @@
+<h2 class="headline"><%= _("<b>Foreman</b>  Host Report Failure").html_safe %></h2>
+<div class="dashboard">
+  <% if @format == 'ansible' %>
+    <% logs = JSON.parse(@report.body)["results"].map { | task | { action: task["task"]["action"], message: task["friendly_message"], name: task["task"]["name"].nil? ? "-" : task["task"]["name"] } if task["failed"] }.compact %>
+    <%= render :partial => 'ansible_failure_state', :locals => {:logs => logs} %>
+    <% else %>
+      <% logs = JSON.parse(@report.body)["logs"].map { | data | { level: data[0], sorce: data[1], message: data[2]}} %>
+      <%= render :partial => 'puppet_failure_state', :locals => {:logs => logs} %>
+    <%end %>
+  <br>
+  <%= link_to _("For more information"), host_report_url(@report) %>
+</div>

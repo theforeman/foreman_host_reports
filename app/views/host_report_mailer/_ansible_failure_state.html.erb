@@ -1,0 +1,28 @@
+<% if logs.size > 0 %>
+  <table>
+    <thead>
+    <tr>
+      <th><%= _("Name") %></th>
+      <th><%= _("Action") %></th>
+      <th><%= _("Message") %></th>
+    </tr>
+    </thead>
+    <tbody>
+    <% logs.each do |log| %>
+      <tr>
+        <td class="hosts-rows">
+          <span <%= HostReport.report_tag log[:name] %>><%= h log[:name] %></span>
+        </td>
+        <td class="hosts-rows">
+          <%= h log[:action] %>
+        </td>
+        <td class="hosts-rows">
+          <%= h log[:message] %>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <b><%= _("No logs to show") %></b>
+<% end %>

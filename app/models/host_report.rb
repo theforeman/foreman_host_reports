@@ -20,6 +20,8 @@ class HostReport < ApplicationRecord
     ansible: 2,
   }.freeze
 
+  after_commit :send_failure_mail
+
   scoped_search relation: :host, on: :name, complete_value: true, rename: :host, aliases: %i[host_name]
   scoped_search relation: :proxy, on: :name, complete_value: true, rename: :proxy
   scoped_search relation: :organization, on: :name, complete_value: true, rename: :organization
@@ -65,6 +67,49 @@ class HostReport < ApplicationRecord
       :nochange
     else
       :empty
+    end
+  end
+
+  def self.report_tag(level)
+    tag = case level
+          when :notice
+            "info"
+          when :warning
+            "warning"
+          when :err
+            "danger"
+          else
+            "default"
+          end
+    "class='label label-#{tag} result-filter-tag'".html_safe
+  end
+
+  private
+
+  def send_failure_mail
+    return unless status == :failure
+    host = Host.find(host_id)
+    if host.disabled?
+      logger.warn "#{host.name} is disabled - skipping alert"
+      return
+    end
+    report_format = format == "ansible" ? "ansible" : "puppet"
+    notification = report_format << "_failure_report"
+    owners = host.owner.present? ? host.owner.recipients_for(notification.to_sym) : []
+    users = report_format == :ansible_failure_report ? AnsibleFailureReport.all_hosts.flat_map(&:users) : PuppetFailureReport.all_hosts.flat_map(&:users)
+    users = users.select do |user|
+      User.as user do
+        Host.authorized_as(user, :view_hosts).find(host.id).present?
+      rescue ActiveRecord::RecordNotFound
+        nil
+      end
+    end
+    owners.concat users
+    if owners.present?
+      logger.debug { "sending alert to #{owners.map(&:login).join(',')}" }
+      MailNotification[notification].deliver(self, :users => owners.uniq)
+    else
+      logger.debug { "no owner or recipients for alert on #{host.name}" }
     end
   end
 end
