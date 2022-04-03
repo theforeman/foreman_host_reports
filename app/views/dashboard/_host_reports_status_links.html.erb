@@ -1,5 +1,7 @@
-
-<%= host_reports_searchable_links _('Hosts with changes'), "report_changes > 0 and report_format = #{format}", :change_hosts, format%>
-<%= host_reports_searchable_links _('Hosts without changes'), "report_nochanges > 0 and report_format = #{format}", :nochange_hosts, format %>
-<%= host_reports_searchable_links _('Hosts with failures'), "report_failures > 0 and report_format =  #{format}" , :failure_hosts, format %>
-<%= host_reports_searchable_links _('Hosts with disabled alerts'), "status.enabled = false" , :disabled_hosts, format %>
+<%= host_reports_searchable_links _('Hosts with failures'), :failure_hosts, format %>
+<%= host_reports_searchable_links _('Hosts with changes'), :change_hosts, format %>
+<%= host_reports_searchable_links _('Hosts without changes'), :nochange_hosts, format %>
+<%= host_reports_searchable_links _('Hosts without events'), :noevents_hosts, format %>
+<%= host_reports_searchable_links _('Out of sync hosts'), :outofsync_hosts, format %>
+<%= host_reports_searchable_links _('Hosts with alerts disabled'), :disabled_hosts, format %>
+<%= host_reports_searchable_links _('Hosts with no reports across formats'), :noreports_hosts, format %>

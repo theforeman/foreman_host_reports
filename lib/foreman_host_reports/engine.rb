@@ -49,8 +49,8 @@ module ForemanHostReports
         in_to_prepare do
           HostReport.formats.each do |format, _|
             if format != 'plain' && (format = format.capitalize)
-              widget 'host_reports_status_chart_widget', :name => N_(" %s Host Reports Chart ") % format, :sizex => 4, :sizey => 1, settings: { format: format }
-              widget 'host_reports_status_widget', :name => N_(" %s Host Reports ") % format, :sizex => 4, :sizey => 1, settings: { format: format }
+              widget 'host_reports_status_chart_widget', :name => N_("Latest %s Host Reports Chart ") % format, :sizex => 4, :sizey => 1, settings: { format: format }
+              widget 'host_reports_status_widget', :name => N_("Latest %s Host Reports ") % format, :sizex => 4, :sizey => 1, settings: { format: format }
             end
           end
 

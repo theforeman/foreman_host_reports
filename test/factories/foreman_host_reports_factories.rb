@@ -2,11 +2,29 @@ FactoryBot.define do
   factory :host_report do
     host
     sequence(:proxy) { |n| FactoryBot.create(:smart_proxy, url: "http://proxy#{n}.example.com", features: [FactoryBot.create(:feature, name: 'Reports')]) }
-    reported_at { Time.now.utc }
+    reported_at { DateTime.now }
     change { 0 }
     nochange { 0 }
     failure { 0 }
     body { '{}' }
+  end
+
+  trait :recent do
+    after(:build) do |report, _evaluator|
+      report.host = FactoryBot.create(:host, last_report: DateTime.now)
+    end
+  end
+
+  trait :outofsync do
+    reported_at { DateTime.now - 99.days }
+    after(:build) do |report, _evaluator|
+      report.host = FactoryBot.create(:host, last_report: DateTime.now - 99.days)
+    end
+  end
+
+  trait :empty do
+    reported_at { DateTime.now - 99.days }
+    host
   end
 
   trait :puppet_format do
